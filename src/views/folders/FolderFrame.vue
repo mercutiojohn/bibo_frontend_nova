@@ -47,7 +47,7 @@ export default {
   display: flex;
 }
 .router-cnt {
-  width: calc(100% - 200px);
+  width: calc(100% - var(--side-width));
   height: 100%;
   box-sizing: border-box;
   overflow: scroll;

@@ -1,5 +1,5 @@
 <template>
-  <div class="folder">
+  <div class="folder fix-scrollbar">
     <!-- {{ fid }} -->
     <!-- {{ ids_raw }} -->
     <!-- {{infos}} -->
@@ -14,7 +14,12 @@
       >
         <el-card class="box-card" v-for="(item, index) in infos" :key="index">
           <div slot="header" class="card-header">
-            <span class="title">{{ item.title }}</span>
+            <span
+              class="title"
+              @click="play(item.id, item.bvid, item.pages[0].cid, 1)"
+            >
+              {{ item.title }}
+            </span>
             <div class="right">
               <span class="bvid inactive-text">{{ item.bvid }}</span>
               <a
@@ -32,58 +37,65 @@
             </div>
           </div>
           <div class="item-details">
-            <div class="cover">
-              <img :src="item.based_cover" alt="" srcset="" />
+            <div class="left">
+              <div class="cover">
+                <img :src="item.based_cover" alt="" srcset="" />
+              </div>
+              <div class="public-stats">
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="时长 / 视频数量"
+                  placement="top-start"
+                >
+                  <div class="basic-info">
+                    <span class="info">{{ getTime(item.duration) }}</span>
+                    <span class="info">共{{ item.page }}个视频</span>
+                  </div>
+                </el-tooltip>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="收藏"
+                  placement="top-start"
+                >
+                  <span class="info">
+                    <i class="icon el-icon-star-off"></i>
+                    <span class="data">{{
+                      parseNumber(item.cnt_info.collect)
+                    }}</span>
+                  </span>
+                </el-tooltip>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="弹幕"
+                  placement="top-start"
+                >
+                  <span class="info">
+                    <i class="icon el-icon-tickets"></i>
+                    <span class="data">{{
+                      parseNumber(item.cnt_info.danmaku)
+                    }}</span>
+                  </span>
+                </el-tooltip>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="播放量"
+                  placement="top-start"
+                >
+                  <span class="info">
+                    <i class="icon el-icon-video-play"></i>
+                    <span class="data">{{
+                      parseNumber(item.cnt_info.play)
+                    }}</span>
+                  </span>
+                </el-tooltip>
+              </div>
             </div>
             <div class="right">
               <div class="infos">
-                <div class="public-stats">
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="时长 / 视频数量"
-                    placement="top-start"
-                  >
-                    <div class="basic-info">
-                      <span class="info">{{ getTime(item.duration) }}</span>
-                      <span class="info">共{{ item.page }}个视频</span>
-                    </div>
-                  </el-tooltip>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="收藏"
-                    placement="top-start"
-                  >
-                    <span class="info">
-                      <i class="icon el-icon-star-off"></i>
-                      <span class="data">{{ item.cnt_info.collect }}</span>
-                    </span>
-                  </el-tooltip>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="弹幕"
-                    placement="top-start"
-                  >
-                    <span class="info">
-                      <i class="icon el-icon-tickets"></i>
-                      <span class="data">{{ item.cnt_info.danmaku }}</span>
-                    </span>
-                  </el-tooltip>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="播放量"
-                    placement="top-start"
-                  >
-                    <span class="info">
-                      <i class="icon el-icon-video-play"></i>
-                      <span class="data">{{ item.cnt_info.play }}</span>
-                    </span>
-                  </el-tooltip>
-                </div>
-
                 <span
                   class="brief select-enable"
                   v-html="briefParseReturn(item.intro)"
@@ -93,32 +105,40 @@
                 <!-- <span class="info">UP主头像URL:{{ item.upper.face }}</span> -->
                 <!-- <span class="info">封面URL:{{ item.cover }}</span> -->
                 <!-- <span class="info">BV号:{{ item.bvid }}</span> -->
-                  <el-collapse v-model="item.activeNames" @change="handleChange" class="pages-collapse-panel">
-                    <el-collapse-item title="视频列表" name="1">
-                      <div class="pages fix-scrollbar">
-                        <div
-                          class="page"
-                          v-for="(item_1, index_1) in item.pages"
-                          :key="index_1"
-                        >
-                          <div class="page-info page-num">{{ item_1.page }}</div>
-                          <div class="page-info page-title">{{ item_1.part }}</div>
-                          <div class="page-info page-duration">
-                            {{ getTime(item_1.duration) }}
-                          </div>
-                          <!-- <div class="extra-info">
+                <el-collapse
+                  v-model="item.activeNames"
+                  @change="handleCollapseChange"
+                  class="pages-collapse-panel"
+                >
+                  <el-collapse-item title="视频列表" name="1">
+                    <div class="pages fix-scrollbar">
+                      <div
+                        class="page"
+                        v-for="(item_1, index_1) in item.pages"
+                        :key="index_1"
+                        @click="
+                          play(item.id, item.bvid, item_1.cid, item_1.page)
+                        "
+                      >
+                        <div class="page-info page-num">{{ item_1.page }}</div>
+                        <div class="page-info page-title">
+                          {{ item_1.part }}
+                        </div>
+                        <div class="page-info page-duration">
+                          {{ getTime(item_1.duration) }}
+                        </div>
+                        <!-- <div class="extra-info">
                         <div class="info">CID:{{item_1.cid}}</div>
                         <div class="info">来源:{{item_1.from}}</div>
                         <div class="info">视频id （无内容）:{{item_1.vid}}</div>
                         <div class="info">链接（无内容）:{{item_1.weblink}}</div>
                         <div class="info">长宽比:{{item_1.dimension.height}}x{{item_1.dimension.width}} 旋转{{item_1.dimension.rotate}}</div>
                                             </div> -->
-                        </div>
                       </div>
-                    </el-collapse-item>
-                  </el-collapse>
-                  <!-- {{ item.pages }} -->
-
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
+                <!-- {{ item.pages }} -->
               </div>
             </div>
           </div>
@@ -377,6 +397,13 @@ export default {
       }
       return i;
     },
+    parseNumber(num) {
+      if (num > 10000) {
+        return (num / 10000).toFixed(2) + "万";
+      } else {
+        return num;
+      }
+    },
     getTime(timestring) {
       let h = new Date(timestring * 1000).getUTCHours();
       let m = new Date(timestring * 1000).getMinutes();
@@ -404,6 +431,19 @@ export default {
           // console.log("based face", index);
         });
       });
+    },
+    handleCollapseChange() {},
+    play(aid, bvid, cid, page) {
+      console.log(aid, page);
+      this.$store.commit("play", {
+        aid: aid,
+        bvid: "",
+        useBvid: false,
+        usePage: true,
+        page: page,
+        cid: cid,
+      });
+      this.$bus.$emit("reloadVideo", "test");
     },
   },
   created() {},
@@ -447,6 +487,11 @@ export default {
   height: 100%;
   object-fit: cover;
 }
+.item-details > .left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .item-details > .right {
   display: flex;
   flex-direction: column;
@@ -459,17 +504,6 @@ export default {
 }
 .item-details .right .title {
   font-size: 1.1em;
-}
-.item-details .right .infos .info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  font-size: 0.9em;
-}
-.item-details .right .infos .info .icon {
-  font-size: 1.2em;
 }
 .item-details .right .infos .brief {
   font-size: 0.8em;
@@ -515,9 +549,20 @@ export default {
 }
 .public-stats {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-evenly;
   gap: 10px;
+}
+.public-stats .info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+}
+.public-stats .info .icon {
+  font-size: 1.2em;
+  color: #ccc;
 }
 .bottom {
   display: flex;
@@ -541,15 +586,18 @@ export default {
 .skeleton {
   position: fixed;
   top: calc(61px + 20px);
-  left: calc(200px + 20px);
-  width: calc(100vw - 200px - 40px);
+  left: calc(var(--side-width) + 20px);
+  width: calc(100vw - var(--side-width) - 40px);
 }
 .pages {
   display: flex;
   flex-direction: column;
   gap: 10px;
   max-height: 300px;
-  overflow: scroll!important;
+  overflow: scroll !important;
+  background: #fafafa;
+  padding: 10px 6px;
+  border-radius: 10px;
 }
 .pages > .page {
   flex-shrink: 0;
@@ -560,7 +608,8 @@ export default {
   border: 1px solid #eee;
   padding: 10px 15px;
   border-radius: 10px;
-  gap:10px;
+  gap: 10px;
+  background: #fff;
 }
 .pages > .page > .page-info {
   font-size: 0.8em;

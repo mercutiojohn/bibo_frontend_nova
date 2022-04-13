@@ -25,6 +25,8 @@ Vue.use(VueLazyload, {
     error: require('./assets/images/video/bili-fail.png') //加载失败图片
 });
 
+// Bus
+Vue.prototype.$bus = new Vue();
 
 new Vue({
     router,

@@ -45,9 +45,8 @@ export default {
   },
 };
 </script>
-<style lang="css" src="./styles/common.css">
-</style>
 <style>
+@import "styles/common.css";
 body{
   margin:0;
   user-select: none;

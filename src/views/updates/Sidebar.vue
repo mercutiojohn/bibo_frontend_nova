@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar fix-scrollbar">
     <el-menu
       default-active="2"
       class="el-menu-vertical-demo"
@@ -107,12 +107,12 @@ export default {
 
 <style>
 .sidebar {
-  width: 200px;
+  width: var(--side-width);
   height: 100%;
+  overflow: scroll;
 }
 .el-menu-vertical-demo {
   height: 100%;
-  overflow: scroll;
   width: 100%;
 }
 </style>

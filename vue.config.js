@@ -18,5 +18,9 @@ module.exports = {
                 args[0].title = '必播'
                 return args
             })
+    },
+    devServer: {
+        // 指定项目启动时的默认端口号
+        port: 8010
     }
 }
