@@ -1,18 +1,93 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="login-box">
+      <h1>登录</h1>
+      <div>
+        <el-button @click="openLoginDialog()">Cookie登录</el-button>
+        <!-- <el-button @click="startHacking">二维码登录</el-button> -->
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
-  name: 'Home',
-  components: {
-    HelloWorld
-  }
-}
+  name: "Home",
+  components: {},
+  data() {
+    return {
+    };
+  },
+  computed: {
+    settings: function () {
+      return this.$store.getters.getSettings;
+    },
+    loginDialogVisible(){
+      return this.$store.state.loginDialogVisible;
+    }
+  },
+  watch: {
+    settings() {
+      this.$store.commit("setSettings", this.settings);
+      this.ifLogined();
+    },
+    loginDialogVisible(status){
+      if(status == false)this.ifLogined();
+    }
+  },
+  methods: {
+    ifLogined(){
+      if(this.checkLogin()){
+        this.redirectIfLogined();
+      }
+    },
+    checkLogin(){
+      if(this.settings.uid===''||this.cookies===''){
+        return false;
+      }else{
+        return true;
+      }
+    },
+    startHacking() {
+      this.$notify({
+        title: "It works!",
+        type: "success",
+        message:
+          "We've laid the ground work for you. It's time for you to build something epic!",
+        duration: 5000,
+      });
+    },
+    forceUpdateSettings() {
+      setTimeout(() => {
+        this.$store.commit("setSettings", this.settings);
+      }, 10);
+    },
+    redirectIfLogined(){
+        this.$router.push('/folders')
+    },
+    openLoginDialog() {
+      this.$store.commit("setLoginDialogVisible", true);
+    },
+  },
+  created() {},
+  mounted() {
+    this.ifLogined();
+  },
+  beforeDestroy() {},
+};
 </script>
+
+<style scoped>
+.home {
+  overflow: scroll;
+  height: calc(100vh - 61px);
+}
+.login-box {
+  padding: 20px;
+  max-width: 700px;
+  box-sizing: border-box;
+  margin: 20px auto;
+  border-radius: 10px;
+  background: #fff;
+}
+</style>

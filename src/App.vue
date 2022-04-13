@@ -1,32 +1,71 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <LoginDialog />
+    <HeaderBar />
+    <transition name="el-fade-in">
+      <router-view class="main-cnt"></router-view>
+    </transition>
+    <PlayerBar v-if="checkLogin()"/>
   </div>
 </template>
 
+<script>
+import HeaderBar from "./components/HeaderBar.vue";
+import LoginDialog from './components/LoginDialog.vue';
+import PlayerBar from './components/player/PlayerBar.vue';
+export default {
+  components: { HeaderBar, LoginDialog, PlayerBar },
+  data() {
+    return {
+
+    };
+  },
+  computed:{
+    settings: function () {
+      return this.$store.getters.getSettings;
+    },
+  },
+  methods: {
+    checkLogin(){
+      if(this.settings.uid===''||this.cookies===''){
+        return false;
+      }else{
+        return true;
+      }
+    },
+    startHacking() {
+      this.$notify({
+        title: "It works!",
+        type: "success",
+        message:
+          "We've laid the ground work for you. It's time for you to build something epic!",
+        duration: 5000,
+      });
+    },
+  },
+};
+</script>
+<style lang="css" src="./styles/common.css">
+</style>
 <style>
+body{
+  margin:0;
+  user-select: none;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  /* font-family: Helvetica, sans-serif; */
+  /* text-align: center; */
+  background: #f5f5f5;
 }
-
-#nav {
-  padding: 30px;
+.main-cnt{
+  width: 100%;
+  height: calc(100vh - 61px - 60px);
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+a{
+  text-decoration: none;
+  color:black;
 }
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+a:visited{
+  color:black;
 }
 </style>
