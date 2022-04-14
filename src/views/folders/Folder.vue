@@ -21,7 +21,6 @@
               {{ item.title }}
             </span>
             <div class="right">
-              <span class="bvid inactive-text">{{ item.bvid }}</span>
               <a
                 :href="'https://www.bilibili.com/video/' + item.bvid"
                 target="_blank"
@@ -105,7 +104,22 @@
                 <!-- <span class="info">UP主头像URL:{{ item.upper.face }}</span> -->
                 <!-- <span class="info">封面URL:{{ item.cover }}</span> -->
                 <!-- <span class="info">BV号:{{ item.bvid }}</span> -->
-                <el-collapse
+                
+                <!-- {{ item.pages }} -->
+              </div>
+              <div class="tags">
+                <el-tag  class="tag" v-for="(item_1,index_1) in item.tags" :key="index_1" :type="(item_1.tag_type == 'old_channel'?'info':(item_1.tag_type == 'topic'?'warning':''))" >
+                    <i class="el-icon-star-on" v-if="item_1.tag_type == 'new_channel'"></i>
+                    <i class="el-icon-s-flag" v-if="item_1.tag_type == 'topic'"></i>
+                    <span class="tag-name">{{item_1.tag_name}}</span>
+                  <!-- <div class="extra-info">
+                    <span class="info">标签名称：{{item_1.tag_name}}</span>
+                    <span class="info">标签ID ： {{item_1.tag_name}}</span>
+                    <span class="info">标签类型【（新/旧）频道channel/主题topic】：{{item_1.tag_type}}</span>
+                  </div> -->
+                  </el-tag>
+              </div>
+              <el-collapse
                   v-model="item.activeNames"
                   @change="handleCollapseChange"
                   class="pages-collapse-panel"
@@ -117,7 +131,13 @@
                         v-for="(item_1, index_1) in item.pages"
                         :key="index_1"
                         @click="
-                          play(item.id, item.bvid, item_1.cid, item_1.page, item)
+                          play(
+                            item.id,
+                            item.bvid,
+                            item_1.cid,
+                            item_1.page,
+                            item
+                          )
                         "
                       >
                         <div class="page-info page-num">{{ item_1.page }}</div>
@@ -138,8 +158,6 @@
                     </div>
                   </el-collapse-item>
                 </el-collapse>
-                <!-- {{ item.pages }} -->
-              </div>
             </div>
           </div>
           <div class="bottom">
@@ -153,7 +171,7 @@
                 </div>
                 <div class="right">
                   <span class="info">{{ item.upper.name }}</span>
-                  <span class="info inactive-text select-enable">{{
+                  <span class="info uid inactive-text select-enable">{{
                     item.upper.mid
                   }}</span>
                 </div>
@@ -161,9 +179,11 @@
             </a>
             <div class="time-stats">
               <!-- <span class="info">收藏时间:{{ item.ctime }}</span> -->
-              <span class="info inactive-text"
-                >收藏时间:{{ getDate(item.ctime) }}</span
-              >
+              
+              <span class="info inactive-text select-enable">{{ item.bvid }}</span>
+              <span class="info inactive-text">
+                收藏时间:{{ getDate(item.ctime) }}
+              </span>
               <!-- <span class="info">视频发布时间:{{ item.pubtime }}</span> -->
               <!-- <span class="info">视频发布时间:{{  getDate(item.pubtime) }}</span> -->
             </div>
@@ -211,11 +231,7 @@ export default {
   },
   methods: {
     checkLogin() {
-      if (this.settings.uid === "" || this.cookies === "") {
-        return false;
-      } else {
-        return true;
-      }
+      return this.$store.getters.checkLogin;
     },
     refresh() {
       while (this.loading) {}
@@ -327,6 +343,7 @@ export default {
           this.getCover(this.infos[i].cover, "video", i);
           this.getCover(this.infos[i].upper.face, "face", i);
           this.getVideoPages(this.infos[i].id, i);
+          this.getTags(this.infos[i].id,i);
         }
       });
     },
@@ -428,12 +445,30 @@ export default {
         this.infos[index].pages = res.data.data;
         this.$nextTick(() => {
           this.$forceUpdate();
-          // console.log("based face", index);
+        });
+      });
+    },
+    getTags(aid,index) {
+      const data = {
+        aid: aid,
+        cookies: this.settings.cookies,
+      };
+      const options = {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        data: this.qs.stringify(data),
+        url: "http://127.0.0.1:5000/bilibili/video/tags_list",
+      };
+      this.$axios(options).then((res) => {
+        // console.log(res.data);
+        this.infos[index].tags = res.data.data;
+        this.$nextTick(() => {
+          this.$forceUpdate();
         });
       });
     },
     handleCollapseChange() {},
-    play(aid, bvid, cid, page,info) {
+    play(aid, bvid, cid, page, info) {
       const obj = {
         aid: aid,
         bvid: bvid,
@@ -441,8 +476,8 @@ export default {
         usePage: true,
         page: page,
         cid: cid,
-        info:info
-      }
+        info: info,
+      };
       console.log(page, obj);
       this.$store.commit("play", obj);
       this.$bus.$emit("reloadVideo", "test");
@@ -498,6 +533,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: calc(100% - 150px);
+  gap:10px;
 }
 .item-details .right .infos {
   display: flex;
@@ -508,7 +544,8 @@ export default {
   font-size: 1.1em;
 }
 .item-details .right .infos .brief {
-  font-size: 0.8em;
+  font-size: 0.85em;
+  text-overflow: ellipsis;
 }
 .upper {
   display: flex;
@@ -519,6 +556,9 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 3px;
+}
+.upper .right .uid {
+  font-size: 0.8em;
 }
 .upper .avatar {
   width: 40px;
@@ -545,9 +585,11 @@ export default {
   gap: 10px;
 }
 .time-stats {
-  text-align: right;
+  /* text-align: right; */
   display: flex;
   gap: 10px;
+  font-size: 0.8em;
+  align-items: center;
 }
 .public-stats {
   display: flex;
@@ -628,5 +670,10 @@ export default {
   text-align: right;
   font-size: 0.8em;
   width: 50px;
+}
+.tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap:10px;
 }
 </style>

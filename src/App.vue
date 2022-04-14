@@ -5,33 +5,42 @@
     <transition name="el-fade-in">
       <router-view class="main-cnt"></router-view>
     </transition>
-    <PlayerBar v-if="checkLogin()"/>
+    <PlayerBar v-if="checkLogin()" />
   </div>
 </template>
 
 <script>
 import HeaderBar from "./components/HeaderBar.vue";
-import LoginDialog from './components/LoginDialog.vue';
-import PlayerBar from './components/player/PlayerBar.vue';
+import LoginDialog from "./components/LoginDialog.vue";
+import PlayerBar from "./components/player/PlayerBar.vue";
 export default {
   components: { HeaderBar, LoginDialog, PlayerBar },
   data() {
-    return {
-
-    };
+    return {};
   },
-  computed:{
+  computed: {
     settings: function () {
       return this.$store.getters.getSettings;
     },
   },
   methods: {
-    checkLogin(){
-      if(this.settings.uid===''||this.cookies===''){
-        return false;
-      }else{
-        return true;
-      }
+    checkLogin() {
+      return this.$store.getters.checkLogin;
+    },
+    getUserInfo() {
+      const data = {
+        cookies: this.settings.cookies,
+      };
+      const options = {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        data: this.qs.stringify(data),
+        url: "http://127.0.0.1:5000/bilibili/user",
+      };
+      this.$axios(options).then((res) => {
+        // console.log(res.data.data);
+        this.$store.commit("setUserInfo", res.data.data);
+      });
     },
     startHacking() {
       this.$notify({
@@ -43,12 +52,18 @@ export default {
       });
     },
   },
+  mounted() {
+    if (this.checkLogin()) {
+      this.getUserInfo();
+    } else {
+    }
+  },
 };
 </script>
 <style>
 @import "styles/common.css";
-body{
-  margin:0;
+body {
+  margin: 0;
   user-select: none;
 }
 #app {
@@ -56,15 +71,15 @@ body{
   /* text-align: center; */
   background: #f5f5f5;
 }
-.main-cnt{
+.main-cnt {
   width: 100%;
   height: calc(100vh - 61px - 60px);
 }
-a{
+a {
   text-decoration: none;
-  color:black;
+  color: black;
 }
-a:visited{
-  color:black;
+a:visited {
+  color: black;
 }
 </style>

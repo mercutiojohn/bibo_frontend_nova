@@ -1,9 +1,11 @@
 <template>
   <div class="folder-frame">
     <Sidebar />
-    <transition name="el-fade-in">
-      <router-view class="router-cnt" />
-    </transition>
+    <!-- <div class="content"> -->
+      <!-- <transition name="el-fade-in"> -->
+        <router-view class="router-cnt" />
+      <!-- </transition> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -23,11 +25,7 @@ export default {
   watch: {},
   methods: {
     checkLogin(){
-      if(this.settings.uid===''||this.cookies===''){
-        return false;
-      }else{
-        return true;
-      }
+      return this.$store.getters.checkLogin;
     },
   },
   created() {},
@@ -52,4 +50,10 @@ export default {
   box-sizing: border-box;
   overflow: scroll;
 }
+/* .folder-frame .content{
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - var(--side-width));
+  height: 100%;
+} */
 </style>

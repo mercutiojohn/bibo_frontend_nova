@@ -4,11 +4,11 @@
       <div class="expanded-mode" v-show="expandMode && player.playing">
         <div class="video-box-template"></div>
         <div class="main-content">
-          <el-button @click="popupPlayer">弹出窗口看高清</el-button>
-          <el-checkbox v-model="autoSwitchPopup"
-            >自动切换弹出窗口视频</el-checkbox
-          >
-          <span>视频列表</span>
+          <!-- <div class="video-info">
+            {{player.info.title}}
+            {{player.info.intro}}
+          </div> -->
+          <div class="info-header-bar"><span>视频列表</span></div>
           <div class="pages">
             <div
               class="page"
@@ -25,6 +25,12 @@
               </div>
             </div>
           </div>
+          <div class="info-bottom-bar">
+            <el-button @click="popupPlayer">弹出窗口看高清</el-button>
+            <el-checkbox v-model="autoSwitchPopup">
+              自动切换弹出窗口视频
+            </el-checkbox>
+          </div>
         </div>
       </div>
     </transition>
@@ -37,13 +43,14 @@
       <div class="left">
         <div class="playing-info" v-if="player.playing">
           <div class="sub-title">
-            {{ player.page }}.{{
-              player.info.pages[Number(player.page) - 1].part
-            }}
+            {{ player.page }} -
+            {{ player.info.pages[Number(player.page) - 1].part }}
           </div>
-          <div class="title">{{ player.info.title }}</div>
-          <div class="upper-name inactive-text">
-            {{ player.info.upper.name }}
+          <div class="title">
+            {{ player.info.title }}
+            <span class="upper-name inactive-text">
+              - {{ player.info.upper.name }}
+            </span>
           </div>
         </div>
         <div class="playing-info-not-playing" v-else>
@@ -107,6 +114,7 @@ export default {
         "https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&danmaku=0&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&",
       newPlayerUrlSuffix: "",
       autoSwitchPopup: false,
+      activeName: "second",
       // type: 80,
       // isMax: true, // 是否点击放大
       // videoObj: null, // 视频播放对象
@@ -182,6 +190,7 @@ export default {
       // this.$refs.iframeVideo.contentWindow.location.reload();
     },
     popupPlayer() {
+      this.autoSwitchPopup = true;
       window.open(
         this.newPlayerBaseUrl +
           this.getVideoIdInfo() +
@@ -289,7 +298,7 @@ export default {
   height: calc(100vh - 60px);
   /* background: #000; */
   box-sizing: border-box;
-  padding: 20px;
+  /* padding: 20px; */
   /* background: #fff; */
   overflow: scroll;
   display: flex;
@@ -315,10 +324,10 @@ export default {
   height: 100%;
 }
 .playing-info .title {
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 .playing-info .sub-title {
-  font-size: 0.9em;
+  font-size: 1.2em;
 }
 .pages {
   display: flex;
@@ -357,5 +366,27 @@ export default {
   text-align: right;
   font-size: 0.8em;
   width: 50px;
+}
+.info-header-bar {
+  width: 100%;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  box-sizing: border-box;
+  z-index: 100;
+}
+.info-bottom-bar {
+  width: 100%;
+  padding: 12px 20px;
+  position: sticky;
+  bottom: 0;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>

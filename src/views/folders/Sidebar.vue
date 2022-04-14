@@ -8,14 +8,14 @@
     >
       <router-link to="/folders/">
         <el-menu-item index="0">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-s-home"></i>
           <span slot="title">首页</span>
         </el-menu-item>
       </router-link>
       <el-menu-item-group title="直播">
-        <router-link to="/folders/watch-later">
-          <el-menu-item index="2" disabled>
-            <i class="el-icon-document"></i>
+        <router-link to="/folders/streaming">
+          <el-menu-item index="2">
+            <i class="el-icon-video-play"></i>
             <span slot="title">正在直播</span>
           </el-menu-item>
         </router-link>
@@ -23,13 +23,19 @@
       <el-menu-item-group title="收藏夹">
         <router-link to="/folders/watch-later">
           <el-menu-item index="1" disabled>
-            <i class="el-icon-document"></i>
+            <i class="el-icon-takeaway-box"></i>
             <span slot="title">稍后再看</span>
+          </el-menu-item>
+        </router-link>
+        <router-link to="/folders/history">
+          <el-menu-item index="1" disabled>
+            <i class="el-icon-time"></i>
+            <span slot="title">历史记录</span>
           </el-menu-item>
         </router-link>
         <el-submenu index="2">
           <template slot="title">
-            <i class="el-icon-location"></i>
+            <i class="el-icon-menu"></i>
             <span>创建的收藏夹</span>
           </template>
           <!-- <el-menu-item-group> -->
@@ -39,14 +45,17 @@
             :key="index"
           >
             <el-menu-item :index="`1-${index + 1}`">
-              {{ item.title }}
-              {{ item.media_count }}
+              <i class="el-icon-folder"></i>
+              <div class="folder-title-box">
+                <span class="title">{{ item.title }}</span>
+                <span class="count">{{ item.media_count }}</span>
+              </div>
             </el-menu-item>
           </router-link>
           <!-- </el-menu-item-group> -->
         </el-submenu>
         <el-menu-item index="4" disabled>
-          <i class="el-icon-setting"></i>
+          <i class="el-icon-menu"></i>
           <span slot="title">订阅的收藏夹</span>
         </el-menu-item>
       </el-menu-item-group>
@@ -120,5 +129,24 @@ export default {
 .el-menu-vertical-demo {
   height: 100%;
   width: 100%;
+}
+.folder-title-box{
+  display: flex;
+  justify-content: space-between;
+  width:150px;
+}
+.folder-title-box .title{
+  width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.folder-title-box .count{
+  text-align: right;
+  width: 40px;
+}
+.el-menu-item{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 </style>

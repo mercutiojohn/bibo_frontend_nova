@@ -38,15 +38,27 @@ export default {
   methods: {
     ifLogined(){
       if(this.checkLogin()){
+        this.getUserInfo();
         this.redirectIfLogined();
       }
     },
+    getUserInfo() {
+      const data = {
+        cookies: this.settings.cookies,
+      };
+      const options = {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        data: this.qs.stringify(data),
+        url: "http://127.0.0.1:5000/bilibili/user",
+      };
+      this.$axios(options).then((res) => {
+        // console.log(res.data.data);
+        this.$store.commit("setUserInfo", res.data.data);
+      });
+    },
     checkLogin(){
-      if(this.settings.uid===''||this.cookies===''){
-        return false;
-      }else{
-        return true;
-      }
+      return this.$store.getters.checkLogin;
     },
     startHacking() {
       this.$notify({

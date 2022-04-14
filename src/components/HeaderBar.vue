@@ -11,9 +11,9 @@
       </li>
       
       <el-submenu index="1">
-          <template slot="title">{{checkLogin()?settings.uid:'登录'}}</template>
+          <template slot="title">{{checkLogin()?userInfo.uname:'登录'}}</template>
         <router-link to="/">
-        <el-menu-item index="2-1" v-if="!checkLogin()">{{登录}}</el-menu-item>
+        <el-menu-item index="2-1" v-if="!checkLogin()">登录</el-menu-item>
         </router-link>
         <el-menu-item index="2-2" @click="logout()" v-if="checkLogin()">退出登录</el-menu-item>
       </el-submenu>
@@ -37,15 +37,14 @@ export default {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    userInfo(){
+      return this.$store.getters.getUserInfo;
+    }
   },
   watch: {},
   methods: {
     checkLogin(){
-      if(this.settings.uid===''||this.cookies===''){
-        return false;
-      }else{
-        return true;
-      }
+      return this.$store.getters.checkLogin;
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);

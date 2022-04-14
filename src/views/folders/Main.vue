@@ -1,6 +1,6 @@
 <template>
 <div class="folder-main">
-    <h1>Hi,{{settings.uid}}</h1>
+    <h1>你好，{{userInfo.uname}}</h1>
 </div>
 </template>
 
@@ -17,6 +17,9 @@ computed: {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    userInfo(){
+      return this.$store.getters.getUserInfo;
+    }
 },
 watch: {},
 methods: {},

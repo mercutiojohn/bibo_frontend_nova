@@ -9,7 +9,10 @@ export default new Vuex.Store({
             cookies: "",
             uid: '',
         },
-        logined: false,
+        userInfo: {
+            uname: ''
+        },
+        // logined: false,
         loginDialogVisible: false,
         player: {
             playing: false,
@@ -41,6 +44,11 @@ export default new Vuex.Store({
         logout(state) {
             state.settings.uid = '';
             state.settings.cookies = '';
+            state.userInfo = {};
+        },
+        login(state, obj) {
+            state.settings.uid = obj.uid;
+            state.settings.cookies = obj.cookies;
         },
         play(state, obj) {
             console.log('store', obj.aid, obj.page);
@@ -53,6 +61,10 @@ export default new Vuex.Store({
             state.player.page = obj.page;
             state.player.info = obj.info;
             state.player.playing = true;
+        },
+        setUserInfo(state, obj) {
+            console.log(obj);
+            state.userInfo = obj;
         }
     },
     actions: {},
@@ -64,11 +76,21 @@ export default new Vuex.Store({
             }
             return state.settings;
         },
+        getUserInfo: (state) => {
+            return state.userInfo;
+        },
         getPlayer: (state) => {
             // if (localStorage.getItem("settings")) {
             //     state.settings = JSON.parse(decodeURIComponent(localStorage.getItem('settings')));
             // }
             return state.player;
+        },
+        checkLogin: (state) => {
+            if (state.settings.uid === '' || state.cookies === '') {
+                return false;
+            } else {
+                return true;
+            }
         },
     }
 })
