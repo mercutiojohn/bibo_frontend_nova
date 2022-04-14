@@ -1,5 +1,5 @@
 <template>
-  <div class="folder fix-scrollbar">
+  <div class="folder">
     <!-- {{ fid }} -->
     <!-- {{ ids_raw }} -->
     <!-- {{infos}} -->
@@ -33,6 +33,12 @@
                   本地打开
                 </el-button>
               </a>
+              <a :href="'https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&danmaku=0&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&aid='+item.id+'&page=1'" target="_blank"
+                ><el-button style="float: right; padding: 3px 0" type="text">
+                  纯享播放器
+                </el-button>
+              </a>
+              
             </div>
           </div>
           <div class="item-details">

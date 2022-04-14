@@ -115,6 +115,8 @@ export default {
       newPlayerUrlSuffix: "",
       autoSwitchPopup: false,
       activeName: "second",
+      livePlayerBaseUrl:'https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&',
+      livePlayerUrlSuffix:''
       // type: 80,
       // isMax: true, // 是否点击放大
       // videoObj: null, // 视频播放对象

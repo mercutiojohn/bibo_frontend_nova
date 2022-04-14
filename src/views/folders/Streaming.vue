@@ -18,11 +18,18 @@
                 <span class="uid inactive-text select-enable">{{ item.uid }}</span>
               </div>
             </div>
-            <a :href="item.link" target="_blank"
-              ><el-button style="float: right; padding: 3px 0" type="text">
-                网页打开
-              </el-button>
-            </a>
+            <div class="header-right">
+                <a :href="item.link" target="_blank"
+                  ><el-button style="float: right; padding: 3px 0" type="text">
+                    网页打开
+                  </el-button>
+                </a>
+                <a :href="'https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&cid='+item.roomid" target="_blank"
+                  ><el-button style="float: right; padding: 3px 0" type="text">
+                    纯享播放器
+                  </el-button>
+                </a>
+            </div>
           </div>
           <div class="item-details">
             <div class="left">
@@ -406,5 +413,9 @@ export default {
   top: calc(61px + 20px);
   left: calc(var(--side-width) + 20px);
   width: calc(100vw - var(--side-width) - 40px);
+}
+.header-right{
+    display: flex;
+    gap:10px;
 }
 </style>

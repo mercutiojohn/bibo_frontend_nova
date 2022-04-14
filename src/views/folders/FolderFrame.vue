@@ -3,7 +3,7 @@
     <Sidebar />
     <!-- <div class="content"> -->
       <!-- <transition name="el-fade-in"> -->
-        <router-view class="router-cnt" />
+        <router-view class="router-cnt fix-scrollbar" />
       <!-- </transition> -->
     <!-- </div> -->
   </div>
