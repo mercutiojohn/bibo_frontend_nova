@@ -16,7 +16,7 @@
           <div slot="header" class="card-header">
             <span
               class="title"
-              @click="play(item.id, item.bvid, item.pages[0].cid, 1)"
+              @click="play(item.id, item.bvid, item.pages[0].cid, 1, item)"
             >
               {{ item.title }}
             </span>
@@ -117,7 +117,7 @@
                         v-for="(item_1, index_1) in item.pages"
                         :key="index_1"
                         @click="
-                          play(item.id, item.bvid, item_1.cid, item_1.page)
+                          play(item.id, item.bvid, item_1.cid, item_1.page, item)
                         "
                       >
                         <div class="page-info page-num">{{ item_1.page }}</div>
@@ -433,16 +433,18 @@ export default {
       });
     },
     handleCollapseChange() {},
-    play(aid, bvid, cid, page) {
-      console.log(aid, page);
-      this.$store.commit("play", {
+    play(aid, bvid, cid, page,info) {
+      const obj = {
         aid: aid,
-        bvid: "",
+        bvid: bvid,
         useBvid: false,
         usePage: true,
         page: page,
         cid: cid,
-      });
+        info:info
+      }
+      console.log(page, obj);
+      this.$store.commit("play", obj);
       this.$bus.$emit("reloadVideo", "test");
     },
   },

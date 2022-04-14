@@ -16,7 +16,10 @@ export default new Vuex.Store({
             cid: '',
             aid: '',
             bvid: '',
-            useBvid: false
+            useBvid: false,
+            info: {
+                pages: []
+            }
         }
     },
     mutations: {
@@ -48,6 +51,7 @@ export default new Vuex.Store({
             state.player.bvid = obj.bvid;
             state.player.cid = obj.cid;
             state.player.page = obj.page;
+            state.player.info = obj.info;
             state.player.playing = true;
         }
     },
