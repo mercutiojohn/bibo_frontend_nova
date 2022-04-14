@@ -18,7 +18,7 @@
         <el-menu-item index="2-2" @click="logout()" v-if="checkLogin()">退出登录</el-menu-item>
       </el-submenu>
       <el-menu-item index="2"><router-link to="/folders">收藏</router-link></el-menu-item>
-      <el-menu-item index="3"><router-link to="/feeds" disabled>动态</router-link></el-menu-item>
+      <!-- <el-menu-item index="3"><router-link to="/feeds" disabled>动态</router-link></el-menu-item> -->
     </el-menu>
   </div>
 </template>

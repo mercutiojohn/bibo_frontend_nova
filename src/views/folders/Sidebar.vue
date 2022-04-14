@@ -45,7 +45,7 @@
           </el-menu-item>
           <!-- </el-menu-item-group> -->
         </el-submenu>
-        <el-menu-item index="/folders/subscribed/" disabled>
+        <el-menu-item index="/folders/subscribed" disabled>
           <i class="el-icon-menu"></i>
           <span slot="title">订阅的收藏夹</span>
         </el-menu-item>
