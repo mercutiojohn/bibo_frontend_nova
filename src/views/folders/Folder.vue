@@ -169,7 +169,7 @@
                 <div class="avatar">
                   <img :src="item.upper.based_face" alt="" srcset="" />
                 </div>
-                <div class="right">
+                <div class="up-info">
                   <span class="info">{{ item.upper.name }}</span>
                   <span class="info uid inactive-text select-enable">{{
                     item.upper.mid
@@ -552,12 +552,12 @@ export default {
   align-items: center;
   gap: 10px;
 }
-.upper .right {
+.upper .up-info {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
-.upper .right .uid {
+.upper .up-info .uid {
   font-size: 0.8em;
 }
 .upper .avatar {
