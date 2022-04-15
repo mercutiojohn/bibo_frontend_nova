@@ -9,6 +9,14 @@ Vue.use(ElementUI)
 import axios from 'axios'
 Vue.prototype.$axios = axios;
 
+const instance = axios.create({
+    baseURL: process.env.VUE_APP_API_BASE_URL,
+    timeout: 50000,
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+});
+Vue.prototype.$api = instance;
+
 import qs from 'qs'
 Vue.prototype.qs = qs;
 

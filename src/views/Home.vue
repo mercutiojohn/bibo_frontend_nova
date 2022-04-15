@@ -47,12 +47,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/user",
+        url: "/user",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data.data);
         this.$store.commit("setUserInfo", res.data.data);
       });

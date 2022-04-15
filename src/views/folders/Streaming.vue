@@ -153,12 +153,10 @@ export default {
         cover_url: url,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/cover",
+        url: "/cover",
       };
-      this.$axios(options).then(callback).catch(console.error);
+      this.$api(options).then(callback).catch(console.error);
     },
     getCover(url, type, index) {
       if (this.loading) return;
@@ -204,12 +202,10 @@ export default {
         ps: ps,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/live/live_list",
+        url: "/live/live_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data);
         for (let item of res.data.data.list) {
           this.liveList.push(item);
@@ -237,12 +233,10 @@ export default {
         size: size,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/live/live_brief_list",
+        url: "/live/live_brief_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data);
         this.liveBriefList = res.data.data.items;
       });
@@ -254,12 +248,10 @@ export default {
         ps: "1",
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/live/live_list",
+        url: "/live/live_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         this.count = res.data.data.results;
         this.getLoadPage();
       });
@@ -304,12 +296,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/live/live_area_list",
+        url: "/live/live_area_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         console.log(res.data);
         this.liveAreas = res.data.data.data;
         this.parseAreas();

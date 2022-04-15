@@ -262,12 +262,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/favourites/ids_list",
+        url: "/favourites/ids_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data);
         this.ids_raw = res.data.data;
         this.parseIds();
@@ -309,12 +307,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/favourites/infos_list",
+        url: "/favourites/infos_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data);
         for (let item of res.data.data) {
           this.infos.push(item);
@@ -360,12 +356,10 @@ export default {
         cover_url: url,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/cover",
+        url: "/cover",
       };
-      this.$axios(options).then(callback).catch(console.error);
+      this.$api(options).then(callback).catch(console.error);
     },
     getCover(url, type, index) {
       if (this.loading) return;
@@ -443,12 +437,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/video/pages_list",
+        url: "/video/pages_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data);
         this.infos[index].pages = res.data.data;
         this.$nextTick(() => {
@@ -462,12 +454,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/video/tags_list",
+        url: "/video/tags_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         // console.log(res.data);
         this.infos[index].tags = res.data.data;
         this.$nextTick(() => {

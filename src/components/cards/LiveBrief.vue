@@ -52,12 +52,10 @@ export default {
         size: size,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/live/live_brief_list",
+        url: "/live/live_brief_list",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         console.log(res.data);
         this.liveBriefList = res.data.data.items;
         for (let i = 0; i < size; i++) {
@@ -110,12 +108,10 @@ export default {
         cover_url: url,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/cover",
+        url: "/cover",
       };
-      this.$axios(options).then(callback).catch(console.error);
+      this.$api(options).then(callback).catch(console.error);
     },
     playLive(roomid,uid,info){
     const obj = {

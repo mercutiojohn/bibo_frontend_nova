@@ -87,12 +87,10 @@ export default {
         cookies: this.settings.cookies,
       };
       const options = {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
         data: this.qs.stringify(data),
-        url: "http://127.0.0.1:5000/bilibili/favourites/folders",
+        url: "/favourites/folders",
       };
-      this.$axios(options).then((res) => {
+      this.$api(options).then((res) => {
         this.folders = res.data.data.list;
       });
     },
