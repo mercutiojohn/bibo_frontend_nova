@@ -12,6 +12,7 @@ export default new Vuex.Store({
         userInfo: {
             uname: ''
         },
+        otherAccounts: [],
         // logined: false,
         loginDialogVisible: false,
         player: {
@@ -95,6 +96,12 @@ export default new Vuex.Store({
             state.playerLive.uid = '';
             state.playerLive.roomid = '';
             state.playerLive.info = '';
+        },
+        addAccount(state, obj) {
+            state.otherAccounts.push(obj)
+        },
+        removeAccount(state, uid) {
+            // state.otherAccounts.remove()
         }
     },
     actions: {},

@@ -21,6 +21,16 @@
           </el-select>
         </el-form-item> -->
       </el-form>
+      <el-alert
+        title="推荐使用 EditThisCookie 复制 Cookies, 导出设置选择 NetScape 格式"
+        type="info"
+        :closable="false">
+      </el-alert>
+      <div class="links">
+        <el-link type="primary" href="https://microsoftedge.microsoft.com/addons/detail/cookie-editor/ajfboaconbpkglpfanbmlfgojgndmhmc" target="_blank">Cookie Editor - Edge插件商店</el-link>
+        <el-link type="primary" href="https://chrome.google.com/webstore/detail/copy-cookies/jcbpglbplpblnagieibnemmkiamekcdg" target="_blank">Copy Cookie - Chrome插件商店</el-link>
+        <el-link type="primary" href="https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg" target="_blank">Edit This Cookie - Chrome插件商店</el-link>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeLoginDialog()">取消</el-button>
         <el-button type="primary" @click="commitChages()">登录</el-button>
@@ -78,6 +88,9 @@ export default {
       this.$store.commit("setLoginDialogVisible", false);
     },
     commitChages() {
+      console.log(this.settings.cookies);
+      this.settings.cookies = this.settings.cookies.replace(/s+/g,"");
+      console.log(this.settings.cookies);
       this.updateSettings();
       this.closeLoginDialog();
     },
@@ -91,4 +104,12 @@ export default {
 </script>
 
 <style>
+.links{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap:10px;
+  padding: 10px;
+  box-sizing: border-box;
+}
 </style>
