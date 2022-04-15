@@ -8,27 +8,42 @@
           :key="index"
         >
           <div slot="header" class="card-header">
-            <div class="upper" @click="playLive(item.roomid,item.uid,item)">
+            <div class="upper" @click="playLive(item.roomid, item.uid, item)">
               <div class="avatar">
                 <!-- <span class="info">up主头像：{{ item.face }}</span> -->
                 <img v-lazy="item.based_face" alt="" srcset="" />
               </div>
               <div class="up-info">
                 <span class="info">{{ item.uname }}</span>
-                <span class="uid inactive-text select-enable">{{ item.uid }}</span>
+                <span class="uid inactive-text select-enable">{{
+                  item.uid
+                }}</span>
               </div>
             </div>
             <div class="header-right">
-                <a :href="item.link" target="_blank"
-                  ><el-button style="float: right; padding: 3px 0" type="text">
-                    网页打开
-                  </el-button>
-                </a>
-                <a :href="'https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&cid='+item.roomid" target="_blank"
-                  ><el-button style="float: right; padding: 3px 0" type="text">
-                    纯享播放器
-                  </el-button>
-                </a>
+              <a :href="item.link" target="_blank"
+                ><el-button style="float: right; padding: 3px 0" type="text">
+                  <i class="el-icon-link"></i>
+                  网页打开
+                </el-button>
+              </a>
+              <a
+                :href="
+                  'https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&cid=' +
+                  item.roomid
+                "
+                target="_blank"
+                ><el-button style="float: right; padding: 3px 0" type="text">
+                  <i class="el-icon-link"></i>
+                  纯享播放器
+                </el-button>
+              </a>
+              <a :href="'bilibili://live/' + item.roomid" target="_blank"
+                ><el-button style="float: right; padding: 3px 0" type="text">
+                  <i class="el-icon-top-right"></i>
+                  本地打开
+                </el-button>
+              </a>
             </div>
           </div>
           <div class="item-details">
@@ -42,10 +57,25 @@
                 <span class="info">{{ item.title }}</span>
               </div>
               <div class="infos">
-                <span class="info inactive-text select-enable">{{ item.roomid }}</span>
-                <span class="info">{{ indexedAreas[item.parent_area_id].name }} · {{ indexedAreas[item.parent_area_id].list[item.area_id].name }}</span>
+                <span class="info inactive-text select-enable">{{
+                  item.roomid
+                }}</span>
                 <span class="info"
-                  >在线人数：{{ parseNumber(item.online) }}</span
+                  >{{ indexedAreas[item.parent_area_id].name }} ·
+                  {{
+                    indexedAreas[item.parent_area_id].list[item.area_id].name
+                  }}</span
+                >
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="观看人数"
+                  placement="top-start"
+                >
+                  <span class="info">
+                    <i class="el-icon-user"></i>
+                    {{ parseNumber(item.online) }}
+                  </span></el-tooltip
                 >
               </div>
             </div>
@@ -101,7 +131,7 @@ export default {
       empty: false,
       count: 0,
       liveAreas: [],
-      indexedAreas:[]
+      indexedAreas: [],
     };
   },
   computed: {
@@ -144,7 +174,7 @@ export default {
             this.liveList[index].parsed_cover = true;
             this.$nextTick(() => {
               this.$forceUpdate();
-            //   console.log("based cover", index);
+              //   console.log("based cover", index);
             });
           });
           return this.liveList[index].based_cover;
@@ -153,14 +183,14 @@ export default {
         if (this.liveList[index].parsed_face == true) {
           return this.liveList[index].based_face;
         } else {
-          o_cover_url = o_cover_url + "@600w_600h_1c_100q.webp";
+          o_cover_url = o_cover_url + "@200w_200h_1c_100q.webp";
           this.getBasedPic(o_cover_url, (res) => {
             this.liveList[index].based_face =
               "data:image/png;base64," + res.data;
             this.liveList[index].parsed_face = true;
             this.$nextTick(() => {
               this.$forceUpdate();
-            //   console.log("based face", index);
+              //   console.log("based face", index);
             });
           });
           return this.liveList[index].based_face;
@@ -282,29 +312,33 @@ export default {
       this.$axios(options).then((res) => {
         console.log(res.data);
         this.liveAreas = res.data.data.data;
-        this.parseAreas()
+        this.parseAreas();
       });
     },
     parseAreas() {
-        for(let i in this.liveAreas){
-            console.log('live-list',i,this.liveAreas[i].id);
-            this.indexedAreas[this.liveAreas[i].id] = this.deepCopy(this.liveAreas[i]);
-            this.indexedAreas[this.liveAreas[i].id].list = [];
-            for(let j in this.liveAreas[i].list){
-                console.log('live-sublist',j,this.liveAreas[i].list[j].id);
-                this.indexedAreas[this.liveAreas[i].id].list[this.liveAreas[i].list[j].id] = this.deepCopy(this.liveAreas[i].list[j]);
-            }
+      for (let i in this.liveAreas) {
+        console.log("live-list", i, this.liveAreas[i].id);
+        this.indexedAreas[this.liveAreas[i].id] = this.deepCopy(
+          this.liveAreas[i]
+        );
+        this.indexedAreas[this.liveAreas[i].id].list = [];
+        for (let j in this.liveAreas[i].list) {
+          console.log("live-sublist", j, this.liveAreas[i].list[j].id);
+          this.indexedAreas[this.liveAreas[i].id].list[
+            this.liveAreas[i].list[j].id
+          ] = this.deepCopy(this.liveAreas[i].list[j]);
         }
+      }
     },
-    deepCopy(obj){
-        var objCopy = {};
-        for(var key in obj){
-            objCopy[key] = obj[key];
-        }
-        return objCopy;
+    deepCopy(obj) {
+      var objCopy = {};
+      for (var key in obj) {
+        objCopy[key] = obj[key];
+      }
+      return objCopy;
     },
-    playLive(roomid,uid,info){
-    const obj = {
+    playLive(roomid, uid, info) {
+      const obj = {
         roomid: roomid,
         uid: uid,
         info: info,
@@ -312,7 +346,7 @@ export default {
       console.log(roomid, uid, obj);
       this.$store.commit("playLive", obj);
       this.$bus.$emit("reloadVideo", "live");
-    }
+    },
   },
 
   created() {},
@@ -391,7 +425,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: .8em;
+  font-size: 0.8em;
 }
 .item-details .right .title {
   font-size: 1.1em;
@@ -424,8 +458,8 @@ export default {
   left: calc(var(--side-width) + 20px);
   width: calc(100vw - var(--side-width) - 40px);
 }
-.header-right{
-    display: flex;
-    gap:10px;
+.header-right {
+  display: flex;
+  gap: 10px;
 }
 </style>
