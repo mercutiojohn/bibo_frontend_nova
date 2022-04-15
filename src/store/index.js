@@ -23,6 +23,14 @@ export default new Vuex.Store({
             info: {
                 pages: []
             }
+        },
+        playerLive: {
+            playing: false,
+            roomid: '',
+            uid: '',
+            info: {
+
+            }
         }
     },
     mutations: {
@@ -53,6 +61,7 @@ export default new Vuex.Store({
         play(state, obj) {
             console.log('store', obj.aid, obj.page);
             state.player.playing = false;
+            state.playerLive.playing = false;
             state.player.useBvid = obj.useBvid;
             state.player.usePage = obj.usePage;
             state.player.aid = obj.aid;
@@ -62,9 +71,30 @@ export default new Vuex.Store({
             state.player.info = obj.info;
             state.player.playing = true;
         },
+        playLive(state, obj) {
+            console.log('store', obj.uid, obj.roomid);
+            state.player.playing = false;
+            state.playerLive.playing = false;
+            state.playerLive.uid = obj.uid;
+            state.playerLive.roomid = obj.roomid;
+            state.playerLive.info = obj.info;
+            state.playerLive.playing = true;
+        },
         setUserInfo(state, obj) {
             console.log(obj);
             state.userInfo = obj;
+        },
+        stopPlayer(state) {
+            state.player.playing = false;
+            state.playerLive.playing = false;
+            state.player.aid = '';
+            state.player.bvid = '';
+            state.player.cid = '';
+            state.player.page = '';
+            state.player.info = '';
+            state.playerLive.uid = '';
+            state.playerLive.roomid = '';
+            state.playerLive.info = '';
         }
     },
     actions: {},
@@ -84,6 +114,12 @@ export default new Vuex.Store({
             //     state.settings = JSON.parse(decodeURIComponent(localStorage.getItem('settings')));
             // }
             return state.player;
+        },
+        getPlayerLive: (state) => {
+            // if (localStorage.getItem("settings")) {
+            //     state.settings = JSON.parse(decodeURIComponent(localStorage.getItem('settings')));
+            // }
+            return state.playerLive;
         },
         checkLogin: (state) => {
             if (state.settings.uid === '' || state.cookies === '') {

@@ -1,35 +1,45 @@
 <template>
   <div :class="{ 'player-bar': true, 'player-bar-maximized': expandMode }">
     <transition name="el-zoom-in-bottom">
-      <div class="expanded-mode" v-show="expandMode && player.playing">
+      <div class="expanded-mode" v-if="expandMode && (player.playing || playerLive.playing)">
         <div class="video-box-template"></div>
-        <div class="main-content">
-          <!-- <div class="video-info">
-            {{player.info.title}}
-            {{player.info.intro}}
-          </div> -->
-          <div class="info-header-bar"><span>视频列表</span></div>
-          <div class="pages">
-            <div
-              class="page"
-              v-for="(item, index) in player.info.pages"
-              :key="index"
-              @click="play(item.cid, item.page)"
-            >
-              <div class="page-info page-num">{{ item.page }}</div>
-              <div class="page-info page-title">
-                {{ item.part }}
-              </div>
-              <div class="page-info page-duration">
-                {{ getTime(item.duration) }}
+        <div class="main-content fix-scrollbar">
+          <div class="video-info" v-if="type == 'video'">
+            <div class="title-box">
+              <div class="title">{{player.info.title}}</div>
+              <div class="info select-enable" v-html="briefParseReturn(player.info.intro)"></div>
+            </div>
+            <div class="info-header-bar"><span>视频列表</span></div>
+            <div class="pages">
+              <div
+                class="page"
+                v-for="(item, index) in player.info.pages"
+                :key="index"
+                @click="play(item.cid, item.page)"
+              >
+                <div class="page-info page-num">{{ item.page }}</div>
+                <div class="page-info page-title">
+                  {{ item.part }}
+                </div>
+                <div class="page-info page-duration">
+                  {{ getTime(item.duration) }}
+                </div>
               </div>
             </div>
+            <div class="info-bottom-bar">
+              <el-button @click="popupPlayer">弹出窗口看高清</el-button>
+              <el-checkbox v-model="autoSwitchPopup">
+                自动切换弹出窗口视频
+              </el-checkbox>
+            </div>
           </div>
-          <div class="info-bottom-bar">
-            <el-button @click="popupPlayer">弹出窗口看高清</el-button>
-            <el-checkbox v-model="autoSwitchPopup">
-              自动切换弹出窗口视频
-            </el-checkbox>
+          <div class="live-info" v-if="type == 'live'">
+            <div class="title-box">
+              <div class="title">{{playerLive.info.title}}</div>
+              <div class="info">{{playerLive.info.uname}}</div>
+              <div class="info">{{playerLive.info.uid}}</div>
+              <!-- <div class="info select-enable" v-html="briefParseReturn(player.info.intro)"></div> -->
+            </div>
           </div>
         </div>
       </div>
@@ -37,7 +47,7 @@
     <div
       :class="{
         'minimized-mode': true,
-        'bottom-bar-minimized': !expandMode && player.playing,
+        'bottom-bar-minimized': !expandMode && (player.playing || playerLive.playing),
       }"
     >
       <div class="left">
@@ -53,7 +63,15 @@
             </span>
           </div>
         </div>
-        <div class="playing-info-not-playing" v-else>
+        <div class="playing-info" v-if="playerLive.playing">
+          <div class="sub-title">
+            {{ playerLive.info.title }}
+          </div>
+          <div class="title">
+            {{ playerLive.info.uname }}
+          </div>
+        </div>
+        <div class="playing-info-not-playing" v-if="!player.playing && !playerLive.playing">
           <div class="title inactive-text">未在播放</div>
         </div>
       </div>
@@ -61,9 +79,13 @@
         <!-- <div class="progress">456</div> -->
       </div>
       <div class="right">
-        <div class="funcs"></div>
         <div class="playlist"></div>
-        <el-button @click="changeExpand()" v-if="player.playing">
+        <el-button @click="stopPlayer()" v-if="(player.playing || playerLive.playing)">
+          <i
+            class="el-icon-close"
+          ></i>
+        </el-button>
+        <el-button @click="changeExpand()" v-if="(player.playing || playerLive.playing)">
           <i
             :class="{
               'el-icon-arrow-up': !expandMode,
@@ -75,14 +97,14 @@
     </div>
     <div
       :class="{ 'video-box': true, 'video-box-maximized': expandMode }"
-      v-show="player.playing"
+      v-show="(player.playing || playerLive.playing)"
     >
       <!-- <video ref="mainVideo" controls autoplay>
         <source type="application/x-mpegURL" :src="playUrl" id="videoTarget" />
       </video> -->
       <iframe
         ref="iframeVideo"
-        v-if="player.playing && loadFrame"
+        v-if="(player.playing || playerLive.playing) && loadFrame"
         :src="getFullUrl()"
         allowfullscreen="allowfullscreen"
         scrolling="no"
@@ -101,6 +123,7 @@ export default {
   components: {},
   data() {
     return {
+      type: "video",
       expandMode: false,
       aid: "637588808",
       cid: "557147273",
@@ -115,8 +138,9 @@ export default {
       newPlayerUrlSuffix: "",
       autoSwitchPopup: false,
       activeName: "second",
-      livePlayerBaseUrl:'https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&',
-      livePlayerUrlSuffix:''
+      livePlayerBaseUrl:
+        "https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&",
+      livePlayerUrlSuffix: "",
       // type: 80,
       // isMax: true, // 是否点击放大
       // videoObj: null, // 视频播放对象
@@ -137,6 +161,9 @@ export default {
     // },
     player: function () {
       return this.$store.getters.getPlayer;
+    },
+    playerLive: function () {
+      return this.$store.getters.getPlayerLive;
     },
   },
   watch: {
@@ -160,24 +187,48 @@ export default {
       return i;
     },
     getVideoIdInfo() {
-      return this.player.useBvid
+      if (this.type == "video") {
+        return this.player.useBvid
         ? "bvid=" + this.player.bvid
         : "aid=" + this.player.aid;
+      } else if (this.type == "live") {
+        return "cid=" + this.playerLive.roomid;
+      } else {
+        return this.player.useBvid
+        ? "bvid=" + this.player.bvid
+        : "aid=" + this.player.aid;
+      }
+      
     },
     getPageIdInfo() {
-      return this.player.usePage
+      if (this.type == "video") {
+        return this.player.usePage
         ? "page=" + this.player.page
         : "cid=" + this.player.cid;
+      } else if (this.type == "live") {
+        return "";
+      } else {
+        return this.player.usePage
+        ? "page=" + this.player.page
+        : "cid=" + this.player.cid;
+      }
     },
     getFullUrl() {
+      let baseUrl;
+      let suffix;
+      if (this.type == "video") {
+        baseUrl = this.iframePlayerBaseUrl;
+        suffix = this.iframePlayerUrlSuffix;
+      } else if (this.type == "live") {
+        baseUrl = this.livePlayerBaseUrl;
+        suffix = this.livePlayerUrlSuffix;
+      } else {
+        baseUrl = this.iframePlayerBaseUrl;
+        suffix = this.iframePlayerUrlSuffix;
+      }
       const video = this.getVideoIdInfo();
       const page = this.getPageIdInfo();
-      const parsedUrl =
-        this.iframePlayerBaseUrl +
-        video +
-        "&" +
-        page +
-        this.iframePlayerUrlSuffix;
+      const parsedUrl = baseUrl + video + "&" + page + suffix;
       console.log(parsedUrl);
       return parsedUrl;
     },
@@ -186,6 +237,15 @@ export default {
     },
     reloadVideo() {
       this.loadFrame = false;
+      this.type = "video";
+      setTimeout(() => {
+        this.loadFrame = true;
+      }, 5);
+      // this.$refs.iframeVideo.contentWindow.location.reload();
+    },
+    reloadLive() {
+      this.loadFrame = false;
+      this.type = "live";
       setTimeout(() => {
         this.loadFrame = true;
       }, 5);
@@ -215,11 +275,27 @@ export default {
       };
       console.log(page, obj);
       this.$store.commit("play", obj);
-      this.$bus.$emit("reloadVideo", "test");
+      this.$bus.$emit("reloadVideo", "video");
       if (this.autoSwitchPopup) {
         this.popupPlayer();
       }
     },
+    playLive(roomid, uid, info) {
+      const obj = {
+        roomid: roomid,
+        uid: uid,
+        info: info,
+      };
+      console.log(roomid, uid, obj);
+      this.$store.commit("playLive", obj);
+      this.$bus.$emit("reloadVideo", "live");
+    },
+    briefParseReturn(text) {
+      return text.replace(/[\n]/g, "<br/>");
+    },
+    stopPlayer(){
+      this.$store.commit("stopPlayer");
+    }
     // init() {
     //   this.videoObj = videojs(this.$refs.mainVideo, {
     //     bigPlayButton: false,
@@ -237,6 +313,7 @@ export default {
     //     this.big_size = !this.big_size;
     //   }
     // },
+
   },
   created() {},
   mounted() {
@@ -244,8 +321,12 @@ export default {
     //   this.init();
     // });
     this.$bus.$on("reloadVideo", (data) => {
-      console.log("got massage");
-      this.reloadVideo();
+      console.log(data);
+      if (data == "live") {
+        this.reloadLive();
+      } else if ((data = "video")) {
+        this.reloadVideo();
+      }
     });
   },
   beforeDestroy() {},
@@ -374,6 +455,7 @@ export default {
   padding: 10px;
   position: sticky;
   top: 0;
+  border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   background: #fff;
   box-sizing: border-box;
@@ -384,11 +466,24 @@ export default {
   padding: 12px 20px;
   position: sticky;
   bottom: 0;
-  border-bottom: 1px solid #eee;
+  border-top: 1px solid #eee;
   background: #fff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+.title-box{
+  display: flex;
+  padding: 20px;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap:10px;
+}
+.title-box .title{
+  font-weight: 800;
+}
+.title-box .info{
+  font-size: .8em;
 }
 </style>

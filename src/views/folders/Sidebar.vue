@@ -5,7 +5,7 @@
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
-      router="true"
+      router
     >
       <el-menu-item index="/folders">
         <i class="el-icon-s-home"></i>

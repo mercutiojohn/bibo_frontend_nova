@@ -8,7 +8,7 @@
           :key="index"
         >
           <div slot="header" class="card-header">
-            <div class="upper">
+            <div class="upper" @click="playLive(item.roomid,item.uid,item)">
               <div class="avatar">
                 <!-- <span class="info">up主头像：{{ item.face }}</span> -->
                 <img v-lazy="item.based_face" alt="" srcset="" />
@@ -302,6 +302,16 @@ export default {
             objCopy[key] = obj[key];
         }
         return objCopy;
+    },
+    playLive(roomid,uid,info){
+    const obj = {
+        roomid: roomid,
+        uid: uid,
+        info: info,
+      };
+      console.log(roomid, uid, obj);
+      this.$store.commit("playLive", obj);
+      this.$bus.$emit("reloadVideo", "live");
     }
   },
 

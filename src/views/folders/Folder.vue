@@ -486,7 +486,7 @@ export default {
       };
       console.log(page, obj);
       this.$store.commit("play", obj);
-      this.$bus.$emit("reloadVideo", "test");
+      this.$bus.$emit("reloadVideo", "video");
     },
   },
   created() {},
