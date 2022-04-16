@@ -208,11 +208,11 @@
               </el-collapse>
             </div>
           </div>
-          <div class="bg">
+          <!-- <div class="bg">
             <div class="bg-box">
               <img class="blur-bg" v-lazy="item.based_cover" alt="" srcset="" />
             </div>
-          </div>
+          </div> -->
           <div class="bottom floated">
             <a
               :href="'https://space.bilibili.com/' + item.upper.mid"
@@ -825,10 +825,10 @@ export default {
   height: 226px;
   /* overflow: hidden; */
 }
-.floated {
+/* .floated {
   position: relative;
   z-index: 1;
-}
+} */
 .card-header-loading {
   width: 100%;
 }

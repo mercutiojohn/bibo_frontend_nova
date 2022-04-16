@@ -85,11 +85,11 @@
               </div>
             </div>
           </div>
-          <div class="bg">
+          <!-- <div class="bg">
             <div class="bg-box">
               <img class="blur-bg" v-lazy="item.based_cover" alt="" srcset="" />
             </div>
-          </div>
+          </div> -->
           <!-- <div class="extra-info">
               <span class="info">up主名称：{{ item.uname }}</span>
               <span class="info">up主头像：{{ item.face }}</span>
@@ -549,10 +549,10 @@ export default {
   height: 226px;
   /* overflow: hidden; */
 }
-.floated {
+/* .floated {
   position: relative;
   z-index: 1;
-}
+} */
 .card-header-loading {
   width: 100%;
 }
