@@ -760,8 +760,7 @@ export default {
   max-height: 300px;
   overflow: scroll !important;
   background: #fafafa;
-  padding: 10px 6px;
-  border-radius: 10px;
+  padding: 15px 10px;
 }
 .pages > .page {
   flex-shrink: 0;
@@ -777,11 +776,11 @@ export default {
   cursor: pointer;
 }
 .pages > .page:hover {
-  border: 1px solid #409eff;
+  border: 1px solid var(--accent-color);
 }
 .pages > .page:active {
-  color: #409eff;
-  border: 1px solid #409eff;
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
 }
 .pages > .page > .page-info {
   font-size: 0.8em;
@@ -854,5 +853,20 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.folder .el-collapse-item__header {
+    box-sizing: border-box;
+    padding: 0 10px;
+}
+
+.folder .el-collapse {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.folder .el-collapse-item__content {
+    padding-bottom: 0;
 }
 </style>

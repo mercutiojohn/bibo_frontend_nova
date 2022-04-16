@@ -1,8 +1,8 @@
 :root {
     --inactive-color: #bbbaba;
     --side-width: 250px;
-    --accent-color: #ffbb00;
-    --old: #409EFF;
+    --accent-color: #409EFF;
+    --test: #ffbb00;
 }
 
 body {
@@ -107,16 +107,16 @@ body {
 }
 
 ::selection {
-    background: #ffbb00;
-    color: #000000;
+    background: var(--accent-color);
+    color: #ffffff;
 }
 
 ::-moz-selection {
-    background: #ffbb00;
-    color: #000000;
+    background: var(--accent-color);
+    color: #ffffff;
 }
 
 ::-webkit-selection {
-    background: #ffbb00;
-    color: #000000;
+    background: var(--accent-color);
+    color: #ffffff;
 }
