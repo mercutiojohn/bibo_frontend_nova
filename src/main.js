@@ -17,6 +17,7 @@ const instance = axios.create({
 });
 Vue.prototype.$api = instance;
 
+// qs
 import qs from 'qs'
 Vue.prototype.qs = qs;
 
@@ -26,7 +27,7 @@ import router from './router'
 // Vuex
 import store from './store'
 
-// v-lazy
+// vue-lazyload
 import VueLazyload from 'vue-lazyload'
 Vue.use(VueLazyload, {
     loading: require('./assets/images/video/bili-loading.png'), //加载中图片，一定要有，不然会一直重复加载占位图
@@ -35,6 +36,10 @@ Vue.use(VueLazyload, {
 
 // Bus
 Vue.prototype.$bus = new Vue();
+
+// 
+import NativeShare from 'nativeshare'
+Vue.prototype.$share = new NativeShare();
 
 new Vue({
     router,

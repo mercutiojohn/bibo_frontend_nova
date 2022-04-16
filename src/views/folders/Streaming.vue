@@ -8,18 +8,20 @@
           :key="index"
         >
           <div slot="header" class="card-header">
-            <div class="upper" @click="playLive(item.roomid, item.uid, item)">
-              <div class="avatar">
-                <!-- <span class="info">up主头像：{{ item.face }}</span> -->
-                <img v-lazy="item.based_face" alt="" srcset="" />
+            <a :href="'https://space.bilibili.com/' + item.uid" target="_blank">
+              <div class="upper">
+                <div class="avatar">
+                  <!-- <span class="info">up主头像：{{ item.face }}</span> -->
+                  <img v-lazy="item.based_face" alt="" srcset="" />
+                </div>
+                <div class="up-info">
+                  <span class="info">{{ item.uname }}</span>
+                  <span class="uid inactive-text select-enable">{{
+                    item.uid
+                  }}</span>
+                </div>
               </div>
-              <div class="up-info">
-                <span class="info">{{ item.uname }}</span>
-                <span class="uid inactive-text select-enable">{{
-                  item.uid
-                }}</span>
-              </div>
-            </div>
+            </a>
             <div class="header-right">
               <a :href="item.link" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
@@ -46,10 +48,13 @@
               </a>
             </div>
           </div>
-          <div class="item-details">
+          <div
+            class="item-details floated"
+            @click="playLive(item.roomid, item.uid, item)"
+          >
             <div class="left">
               <div class="cover">
-                <img :src="item.based_cover" alt="" srcset="" />
+                <img v-lazy="item.based_cover" alt="" srcset="" />
               </div>
             </div>
             <div class="right">
@@ -80,6 +85,11 @@
               </div>
             </div>
           </div>
+          <div class="bg">
+            <div class="bg-box">
+              <img class="blur-bg" v-lazy="item.based_cover" alt="" srcset="" />
+            </div>
+          </div>
           <!-- <div class="extra-info">
               <span class="info">up主名称：{{ item.uname }}</span>
               <span class="info">up主头像：{{ item.face }}</span>
@@ -94,9 +104,58 @@
               <span class="info">在线人数：{{ item.online }}</span>
             </div> -->
         </el-card>
+        <el-card class="box-card" v-if="subLoading == true">
+          <div slot="header" class="card-header-loading">
+            <el-skeleton :rows="2" animated />
+          </div>
+          <div class="item-details-loading">
+            <el-skeleton :rows="4" animated />
+          </div>
+        </el-card>
+        <el-card class="box-card" v-if="subLoading == true">
+          <div slot="header" class="card-header-loading">
+            <el-skeleton :rows="2" animated />
+          </div>
+          <div class="item-details-loading">
+            <el-skeleton :rows="4" animated />
+          </div>
+        </el-card>
       </div>
       <div v-else key="2">
-        <el-skeleton class="skeleton" :rows="12" animated />
+        <div class="item-list skeleton">
+          <el-card class="box-card">
+            <div slot="header" class="card-header-loading">
+              <el-skeleton :rows="2" animated />
+            </div>
+            <div class="item-details-loading">
+              <el-skeleton :rows="4" animated />
+            </div>
+          </el-card>
+          <el-card class="box-card">
+            <div slot="header" class="card-header-loading">
+              <el-skeleton :rows="2" animated />
+            </div>
+            <div class="item-details-loading">
+              <el-skeleton :rows="4" animated />
+            </div>
+          </el-card>
+          <el-card class="box-card">
+            <div slot="header" class="card-header-loading">
+              <el-skeleton :rows="2" animated />
+            </div>
+            <div class="item-details-loading">
+              <el-skeleton :rows="4" animated />
+            </div>
+          </el-card>
+          <el-card class="box-card">
+            <div slot="header" class="card-header-loading">
+              <el-skeleton :rows="2" animated />
+            </div>
+            <div class="item-details-loading">
+              <el-skeleton :rows="4" animated />
+            </div>
+          </el-card>
+        </div>
       </div>
     </transition-group>
     <!-- <div class="live-brief-list">
@@ -126,12 +185,13 @@ export default {
       loading: true,
       liveList: [],
       liveBriefList: [],
-      pageSize: 10,
+      pageSize: 6,
       pageNumber: 1,
       empty: false,
       count: 0,
       liveAreas: [],
       indexedAreas: [],
+      subLoading:false
     };
   },
   computed: {
@@ -221,6 +281,7 @@ export default {
           this.liveList[i].parsed_face = false;
         }
         this.loading = false;
+        this.subLoading = false;
         for (let i = start; i < end; i++) {
           this.getCover(this.liveList[i].pic, "video", i);
           this.getCover(this.liveList[i].face, "face", i);
@@ -268,10 +329,13 @@ export default {
       let end = (page - 1) * pageSize + pageSize;
       if (start == length) {
         this.empty = true;
+        // this.subLoading = false;
         return null;
       } else if (start > length) {
+        // this.subLoading = false;
         return null;
       }
+      this.subLoading = true;
       console.log(end, ">", length, end > length);
       if (end > length) {
         console.log("end changed from", end, "to", length);
@@ -361,6 +425,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 5px;
+  border-radius: 5px;
+}
+.upper:hover {
+  background: #eee;
 }
 .upper .up-info {
   display: flex;
@@ -387,6 +456,12 @@ export default {
   /* flex-direction: column; */
   gap: 20px;
   /* height: 100%; */
+  padding: 15px;
+  cursor: pointer;
+  /* backdrop-filter: blur(100px); */
+}
+.item-details:hover {
+  background: #eee;
 }
 .item-details .cover {
   --width: 200px;
@@ -451,5 +526,47 @@ export default {
 .header-right {
   display: flex;
   gap: 10px;
+}
+.bg {
+  width: 100%;
+  height: 0;
+  position: relative;
+  bottom: 60px;
+  pointer-events: none;
+  z-index: 0;
+  /* overflow: hidden; */
+}
+.blur-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* height: 100%; */
+  filter: blur(100px);
+  opacity: 0.3;
+}
+.bg-box {
+  width: 100%;
+  height: 226px;
+  /* overflow: hidden; */
+}
+.floated {
+  position: relative;
+  z-index: 1;
+}
+.card-header-loading {
+  width: 100%;
+}
+.item-details-loading {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+</style>
+<style>
+.streaming .el-card__header {
+  padding: 15px;
+}
+.streaming .el-card__body {
+  padding: 0;
 }
 </style>

@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "element-ui": "2.15.7",
     "flv.js": "^1.6.2",
+    "nativeshare": "^2.1.5",
     "qs": "6.10.3",
     "register-service-worker": "^1.7.1",
     "video.js": "^7.18.1",

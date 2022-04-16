@@ -8,45 +8,74 @@
         class="item-list"
         v-if="!loading"
         v-infinite-scroll="loads"
-        infinite-scroll-delay="100"
+        infinite-scroll-delay="30"
         infinite-scroll-immediate="false"
         key="1"
       >
         <el-card class="box-card" v-for="(item, index) in infos" :key="index">
           <div slot="header" class="card-header">
-            <span
+            <!-- <el-tooltip
+              class="item"
+              effect="dark"
+              content="在播放器打开"
+              placement="top-start"
+            > -->
+            <el-link
               class="title"
               @click="play(item.id, item.bvid, item.pages[0].cid, 1, item)"
             >
               {{ item.title }}
-            </span>
+            </el-link>
+            <!-- </el-tooltip> -->
             <div class="right">
               <a
                 :href="'https://www.bilibili.com/video/' + item.bvid"
                 target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
-                    <i class="el-icon-link"></i>
+                  <i class="el-icon-link"></i>
                   网页打开
                 </el-button>
               </a>
-              <a :href="'https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&danmaku=0&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&aid='+item.id+'&page=1'" target="_blank"
+              <a
+                :href="
+                  'https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&danmaku=0&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&aid=' +
+                  item.id +
+                  '&page=1'
+                "
+                target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
-                    <i class="el-icon-link"></i>
+                  <i class="el-icon-link"></i>
                   纯享播放器
                 </el-button>
               </a>
               <a :href="item.link" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
-                    <i class="el-icon-top-right"></i>
+                  <i class="el-icon-top-right"></i>
                   本地打开
                 </el-button>
               </a>
+              <el-button
+                style="float: right; padding: 3px 0"
+                type="text"
+                @click="
+                  share(
+                    item.title,
+                    'https://www.bilibili.com/video/' + item.bvid,
+                    item.intro,
+                    item.based_cover,
+                    '@Mercutio'
+                  )
+                "
+              >
+                <i class="el-icon-top-right"></i>
+                分享
+              </el-button>
             </div>
           </div>
-          <div class="item-details">
+          <div class="item-details floated">
             <div class="left">
               <div class="cover">
-                <img :src="item.based_cover" alt="" srcset="" />
+                <img v-lazy="item.based_cover" alt="" srcset="" />
               </div>
               <div class="public-stats">
                 <el-tooltip
@@ -112,70 +141,86 @@
                 <!-- <span class="info">UP主头像URL:{{ item.upper.face }}</span> -->
                 <!-- <span class="info">封面URL:{{ item.cover }}</span> -->
                 <!-- <span class="info">BV号:{{ item.bvid }}</span> -->
-                
+
                 <!-- {{ item.pages }} -->
               </div>
               <div class="tags">
-                <el-tag  class="tag" v-for="(item_1,index_1) in item.tags" :key="index_1" :type="(item_1.tag_type == 'old_channel'?'info':(item_1.tag_type == 'topic'?'warning':''))" >
-                    <i class="el-icon-star-on" v-if="item_1.tag_type == 'new_channel'"></i>
-                    <i class="el-icon-s-flag" v-if="item_1.tag_type == 'topic'"></i>
-                    <span class="tag-name">{{item_1.tag_name}}</span>
+                <el-tag
+                  class="tag"
+                  v-for="(item_1, index_1) in item.tags"
+                  :key="index_1"
+                  :type="
+                    item_1.tag_type == 'old_channel'
+                      ? 'info'
+                      : item_1.tag_type == 'topic'
+                      ? 'warning'
+                      : ''
+                  "
+                >
+                  <i
+                    class="el-icon-star-on"
+                    v-if="item_1.tag_type == 'new_channel'"
+                  ></i>
+                  <i
+                    class="el-icon-s-flag"
+                    v-if="item_1.tag_type == 'topic'"
+                  ></i>
+                  <span class="tag-name">{{ item_1.tag_name }}</span>
                   <!-- <div class="extra-info">
                     <span class="info">标签名称：{{item_1.tag_name}}</span>
                     <span class="info">标签ID ： {{item_1.tag_name}}</span>
                     <span class="info">标签类型【（新/旧）频道channel/主题topic】：{{item_1.tag_type}}</span>
                   </div> -->
-                  </el-tag>
+                </el-tag>
               </div>
               <el-collapse
-                  v-model="item.activeNames"
-                  @change="handleCollapseChange"
-                  class="pages-collapse-panel"
-                >
-                  <el-collapse-item title="视频列表" name="1">
-                    <div class="pages fix-scrollbar">
-                      <div
-                        class="page"
-                        v-for="(item_1, index_1) in item.pages"
-                        :key="index_1"
-                        @click="
-                          play(
-                            item.id,
-                            item.bvid,
-                            item_1.cid,
-                            item_1.page,
-                            item
-                          )
-                        "
-                      >
-                        <div class="page-info page-num">{{ item_1.page }}</div>
-                        <div class="page-info page-title">
-                          {{ item_1.part }}
-                        </div>
-                        <div class="page-info page-duration">
-                          {{ getTime(item_1.duration) }}
-                        </div>
-                        <!-- <div class="extra-info">
+                v-model="item.activeNames"
+                @change="handleCollapseChange"
+                class="pages-collapse-panel"
+              >
+                <el-collapse-item title="视频列表" name="1">
+                  <div class="pages fix-scrollbar">
+                    <div
+                      class="page"
+                      v-for="(item_1, index_1) in item.pages"
+                      :key="index_1"
+                      @click="
+                        play(item.id, item.bvid, item_1.cid, item_1.page, item)
+                      "
+                    >
+                      <div class="page-info page-num">{{ item_1.page }}</div>
+                      <div class="page-info page-title">
+                        {{ item_1.part }}
+                      </div>
+                      <div class="page-info page-duration">
+                        {{ getTime(item_1.duration) }}
+                      </div>
+                      <!-- <div class="extra-info">
                         <div class="info">CID:{{item_1.cid}}</div>
                         <div class="info">来源:{{item_1.from}}</div>
                         <div class="info">视频id （无内容）:{{item_1.vid}}</div>
                         <div class="info">链接（无内容）:{{item_1.weblink}}</div>
                         <div class="info">长宽比:{{item_1.dimension.height}}x{{item_1.dimension.width}} 旋转{{item_1.dimension.rotate}}</div>
                                             </div> -->
-                      </div>
                     </div>
-                  </el-collapse-item>
-                </el-collapse>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
             </div>
           </div>
-          <div class="bottom">
+          <div class="bg">
+            <div class="bg-box">
+              <img class="blur-bg" v-lazy="item.based_cover" alt="" srcset="" />
+            </div>
+          </div>
+          <div class="bottom floated">
             <a
               :href="'https://space.bilibili.com/' + item.upper.mid"
               target="_blank"
             >
               <div class="upper">
                 <div class="avatar">
-                  <img :src="item.upper.based_face" alt="" srcset="" />
+                  <img v-lazy="item.upper.based_face" alt="" srcset="" />
                 </div>
                 <div class="up-info">
                   <span class="info">{{ item.upper.name }}</span>
@@ -187,8 +232,10 @@
             </a>
             <div class="time-stats">
               <!-- <span class="info">收藏时间:{{ item.ctime }}</span> -->
-              
-              <span class="info inactive-text select-enable">{{ item.bvid }}</span>
+
+              <span class="info inactive-text select-enable">{{
+                item.bvid
+              }}</span>
               <span class="info inactive-text">
                 收藏时间:{{ getDate(item.ctime) }}
               </span>
@@ -197,9 +244,42 @@
             </div>
           </div>
         </el-card>
+        <el-card class="box-card" v-if="subLoading == true">
+          <div slot="header" class="card-header-loading">
+            <el-skeleton :rows="1" animated />
+          </div>
+          <div class="item-details-loading">
+            <el-skeleton :rows="12" animated />
+          </div>
+        </el-card>
+        <el-card class="box-card" v-if="subLoading == true">
+          <div slot="header" class="card-header-loading">
+            <el-skeleton :rows="1" animated />
+          </div>
+          <div class="item-details-loading">
+            <el-skeleton :rows="12" animated />
+          </div>
+        </el-card>
       </div>
       <div v-else key="2">
-        <el-skeleton class="skeleton" :rows="12" animated />
+        <div class="item-list skeleton">
+          <el-card class="box-card">
+          <div slot="header" class="card-header-loading">
+            <el-skeleton :rows="1" animated />
+          </div>
+          <div class="item-details-loading">
+            <el-skeleton :rows="12" animated />
+          </div>
+        </el-card>
+        <el-card class="box-card">
+          <div slot="header" class="card-header-loading">
+            <el-skeleton :rows="1" animated />
+          </div>
+          <div class="item-details-loading">
+            <el-skeleton :rows="12" animated />
+          </div>
+        </el-card>
+        </div>
       </div>
     </transition-group>
   </div>
@@ -218,10 +298,11 @@ export default {
       ids_raw: [],
       infos: [],
       loading: true,
-      pageSize: 30,
+      pageSize: 6,
       pageNumber: 0,
       empty: false,
       loadingPics: false,
+      subLoading: false,
     };
   },
   computed: {
@@ -252,6 +333,7 @@ export default {
     },
 
     loads() {
+      this.subLoading = true;
       this.pageNumber++;
       this.parseIds();
     },
@@ -280,13 +362,16 @@ export default {
       let end = page * pageSize + pageSize;
       if (start == length) {
         this.empty = true;
+        this.subLoading = false;
         return null;
       } else if (start > length) {
+        this.subLoading = false;
         return null;
       }
       // console.log(end, ">", length, end > length);
       if (end > length) {
         // console.log("end changed from", end, "to", length);
+        this.subLoading = false;
         end = length;
       }
       console.log("length", length, "start", start, "end", end);
@@ -343,11 +428,12 @@ export default {
           ];
         }
         this.loading = false;
+        this.subLoading = false;
         for (let i = start; i < end; i++) {
           this.getCover(this.infos[i].cover, "video", i);
           this.getCover(this.infos[i].upper.face, "face", i);
           this.getVideoPages(this.infos[i].id, i);
-          this.getTags(this.infos[i].id,i);
+          this.getTags(this.infos[i].id, i);
         }
       });
     },
@@ -448,7 +534,7 @@ export default {
         });
       });
     },
-    getTags(aid,index) {
+    getTags(aid, index) {
       const data = {
         aid: aid,
         cookies: this.settings.cookies,
@@ -480,6 +566,23 @@ export default {
       this.$store.commit("play", obj);
       this.$bus.$emit("reloadVideo", "video");
     },
+    share(title, link, desc, icon, from) {
+      this.$share.setShareData({
+        icon: icon,
+        link: link,
+        title: title,
+        desc: desc,
+        from: from,
+      });
+      try {
+        this.$share.call();
+        // 如果是分享到微信则需要 nativeShare.call('wechatFriend')
+        // 类似的命令下面有介绍
+      } catch (err) {
+        // 如果不支持，你可以在这里做降级处理
+        console.log(err);
+      }
+    },
   },
   created() {},
   mounted() {
@@ -509,6 +612,8 @@ export default {
   /* flex-direction: column; */
   gap: 20px;
   /* height: 100%; */
+  padding: 20px;
+  box-sizing: border-box;
 }
 .item-details .cover {
   --width: 150px;
@@ -531,7 +636,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: calc(100% - 150px);
-  gap:10px;
+  gap: 10px;
 }
 .item-details .right .infos {
   display: flex;
@@ -544,11 +649,21 @@ export default {
 .item-details .right .infos .brief {
   font-size: 0.85em;
   text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
 }
 .upper {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 5px;
+  border-radius: 5px;
+}
+.upper:hover {
+  background: #eee;
 }
 .upper .up-info {
   display: flex;
@@ -574,6 +689,9 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+}
+.card-header .title {
+  font-size: 1.1em;
 }
 .card-header .right {
   user-select: text;
@@ -614,6 +732,10 @@ export default {
   border-top: 1px solid #ebeef5;
   padding-top: 10px;
   flex-shrink: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  bottom: 0;
+  background: #ffffff96;
 }
 /* .box-card{
   display:flex;
@@ -652,6 +774,14 @@ export default {
   border-radius: 10px;
   gap: 10px;
   background: #fff;
+  cursor: pointer;
+}
+.pages > .page:hover {
+  border: 1px solid #409eff;
+}
+.pages > .page:active {
+  color: #409eff;
+  border: 1px solid #409eff;
 }
 .pages > .page > .page-info {
   font-size: 0.8em;
@@ -669,9 +799,60 @@ export default {
   font-size: 0.8em;
   width: 50px;
 }
-.tags{
+.tags {
   display: flex;
   flex-wrap: wrap;
-  gap:10px;
+  gap: 10px;
+}
+.bg {
+  width: 100%;
+  height: 0;
+  position: relative;
+  bottom: 60px;
+  pointer-events: none;
+  z-index: 0;
+  /* overflow: hidden; */
+}
+.blur-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* height: 100%; */
+  filter: blur(100px);
+  opacity: 0.3;
+}
+.bg-box {
+  width: 100%;
+  height: 226px;
+  /* overflow: hidden; */
+}
+.floated {
+  position: relative;
+  z-index: 1;
+}
+.card-header-loading {
+  width: 100%;
+}
+.item-details-loading {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+</style>
+<style>
+.folder .el-card {
+  display: flex;
+  flex-direction: column;
+  /* box-shadow: 0 10px 20px 8px #fff!important; */
+}
+.folder .el-card__header {
+  padding: 20px;
+}
+.folder .el-card__body {
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 </style>

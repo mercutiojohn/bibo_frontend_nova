@@ -146,6 +146,16 @@ export default {
   border-radius: 10px;
   background: #fff;
   gap:5px;
+  cursor: pointer;
+  transition: transform .1s ease, box-shadow .2s ease;
+}
+.live-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px 2px #00000026;
+}
+.live-item:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 5px 1px #00000026;
 }
 .avatar {
   width: 80px;

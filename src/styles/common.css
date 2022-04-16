@@ -1,6 +1,8 @@
 :root {
-    --inactive-color: #cbcbcb;
+    --inactive-color: #bbbaba;
     --side-width: 250px;
+    --accent-color: #ffbb00;
+    --old: #409EFF;
 }
 
 body {
@@ -22,6 +24,12 @@ body {
 
 .select-enable {
     user-select: text;
+}
+
+.el-card {
+    border-radius: 15px;
+    box-shadow: none !important;
+    ;
 }
 
 
@@ -96,4 +104,19 @@ body {
 
 .fix-scrollbar::-webkit-scrollbar-resizer {
     background-color: #ff6e00;
+}
+
+::selection {
+    background: #ffbb00;
+    color: #000000;
+}
+
+::-moz-selection {
+    background: #ffbb00;
+    color: #000000;
+}
+
+::-webkit-selection {
+    background: #ffbb00;
+    color: #000000;
 }

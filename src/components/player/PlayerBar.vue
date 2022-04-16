@@ -345,6 +345,7 @@ export default {
   left: 0;
   /* height: 60px; */
   transition: background 0.2s ease;
+  z-index: 2;
 }
 .player-bar-maximized {
   background: #00000020;
@@ -433,6 +434,14 @@ export default {
   border-radius: 10px;
   gap: 10px;
   background: #fff;
+  cursor: pointer;
+}
+.pages > .page:hover{
+  border: 1px solid #409EFF;
+}
+.pages > .page:active{
+  color: #409EFF;
+  border: 1px solid #409EFF;
 }
 .pages > .page > .page-info {
   font-size: 0.8em;
@@ -452,7 +461,7 @@ export default {
 }
 .info-header-bar {
   width: 100%;
-  padding: 10px;
+  padding: 10px 20px;
   position: sticky;
   top: 0;
   border-top: 1px solid #eee;
