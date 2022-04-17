@@ -13,7 +13,10 @@ export default new Vuex.Store({
             uname: ''
         },
         otherAccounts: [],
-        // logined: false,
+        config: {
+            danmaku: true,
+        },
+        logined: false,
         loginDialogVisible: false,
         player: {
             playing: false,

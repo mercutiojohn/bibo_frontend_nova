@@ -131,10 +131,10 @@ export default {
       useBvid: false,
       loadFrame: true,
       iframePlayerBaseUrl:
-        "//player.bilibili.com/player.html?high_quality=1&danmaku=0&",
+        "//player.bilibili.com/player.html?high_quality=1&autoplay=1&",
       iframePlayerUrlSuffix: "",
       newPlayerBaseUrl:
-        "https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&danmaku=0&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&",
+        "https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&",
       newPlayerUrlSuffix: "",
       autoSwitchPopup: false,
       activeName: "second",
@@ -213,6 +213,13 @@ export default {
         : "cid=" + this.player.cid;
       }
     },
+    getUseDanmaku(){
+      if (this.$store.state.config.danmaku) {
+        return 'danmaku=1';
+      } else {
+        return 'danmaku=0';
+      }
+    },
     getFullUrl() {
       let baseUrl;
       let suffix;
@@ -228,7 +235,8 @@ export default {
       }
       const video = this.getVideoIdInfo();
       const page = this.getPageIdInfo();
-      const parsedUrl = baseUrl + video + "&" + page + suffix;
+      const danmaku = this.getUseDanmaku();
+      const parsedUrl = baseUrl + video + "&" + page + "&" + danmaku + suffix;
       console.log(parsedUrl);
       return parsedUrl;
     },
@@ -258,6 +266,8 @@ export default {
           this.getVideoIdInfo() +
           "&" +
           this.getPageIdInfo() +
+          "&" +
+          this.getUseDanmaku() +
           this.newPlayerUrlSuffix,
         "newwindow",
         "height=684, width=1215, top=50, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no"

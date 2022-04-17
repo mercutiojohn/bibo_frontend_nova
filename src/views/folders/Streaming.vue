@@ -31,7 +31,7 @@
               </a>
               <a
                 :href="
-                  'https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&danmaku=0&cid=' +
+                  livePlayerBaseUrl + getUseDanmaku() + '&' +
                   item.roomid
                 "
                 target="_blank"
@@ -191,7 +191,9 @@ export default {
       count: 0,
       liveAreas: [],
       indexedAreas: [],
-      subLoading:false
+      subLoading:false,
+      livePlayerBaseUrl:
+        "https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&",
     };
   },
   computed: {
@@ -206,6 +208,13 @@ export default {
         return (num / 10000).toFixed(2) + "万";
       } else {
         return num;
+      }
+    },
+    getUseDanmaku(){
+      if (this.$store.state.config.danmaku) {
+        return 'danmaku=1';
+      } else {
+        return 'danmaku=0';
       }
     },
     getBasedPic(url, callback) {
