@@ -30,10 +30,7 @@
                 </el-button>
               </a>
               <a
-                :href="
-                  livePlayerBaseUrl + getUseDanmaku() + '&' +
-                  item.roomid
-                "
+                :href="livePlayerBaseUrl + getUseDanmaku() + '&' + item.roomid"
                 target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-link"></i>
@@ -191,7 +188,7 @@ export default {
       count: 0,
       liveAreas: [],
       indexedAreas: [],
-      subLoading:false,
+      subLoading: false,
       livePlayerBaseUrl:
         "https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&",
     };
@@ -210,11 +207,11 @@ export default {
         return num;
       }
     },
-    getUseDanmaku(){
+    getUseDanmaku() {
       if (this.$store.state.config.danmaku) {
-        return 'danmaku=1';
+        return "danmaku=1";
       } else {
-        return 'danmaku=0';
+        return "danmaku=0";
       }
     },
     getBasedPic(url, callback) {
@@ -228,7 +225,8 @@ export default {
       this.$api(options).then(callback).catch(console.error);
     },
     getCover(url, type, index) {
-      if (this.loading) return;
+      // if (this.loading) return;
+      // console.log('正在加载第',index,'个',type);
       let o_cover_url = url;
       if (type == "video") {
         if (this.liveList[index].parsed_cover == true) {
@@ -239,6 +237,7 @@ export default {
             this.liveList[index].based_cover =
               "data:image/png;base64," + res.data;
             this.liveList[index].parsed_cover = true;
+            // console.log('[完成]加载第',index,'个',type);
             this.$nextTick(() => {
               this.$forceUpdate();
               //   console.log("based cover", index);
@@ -255,6 +254,7 @@ export default {
             this.liveList[index].based_face =
               "data:image/png;base64," + res.data;
             this.liveList[index].parsed_face = true;
+            // console.log('[完成]加载第',index,'个',type);
             this.$nextTick(() => {
               this.$forceUpdate();
               //   console.log("based face", index);
@@ -279,6 +279,13 @@ export default {
         for (let item of res.data.data.list) {
           this.liveList.push(item);
         }
+        setTimeout(this.getLoadingPic(start, end), 100);
+        this.loading = false;
+        this.subLoading = false;
+      });
+    },
+    getLoadingPic(start, end) {
+      try {
         for (let i = start; i < end; i++) {
           this.liveList[
             i
@@ -289,13 +296,19 @@ export default {
           this.liveList[i].parsed_cover = false;
           this.liveList[i].parsed_face = false;
         }
-        this.loading = false;
-        this.subLoading = false;
+      } catch (error) {
+        console.log(`第${start}-${end}张图片加载失败`);
+        setTimeout(()=>{
         for (let i = start; i < end; i++) {
           this.getCover(this.liveList[i].pic, "video", i);
           this.getCover(this.liveList[i].face, "face", i);
         }
-      });
+        },1000)
+      }
+      for (let i = start; i < end; i++) {
+        this.getCover(this.liveList[i].pic, "video", i);
+        this.getCover(this.liveList[i].face, "face", i);
+      }
     },
     getLiveBriefList(size) {
       const data = {
@@ -327,6 +340,7 @@ export default {
       });
     },
     loads() {
+      if (this.subLoading) return;
       this.getLoad();
     },
     getLoadPage() {

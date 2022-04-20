@@ -41,6 +41,10 @@ const routes = [{
             component: () =>
                 import ( /* webpackChunkName: "folder" */ '../views/folders/Streaming.vue')
         }, {
+            path: 'history',
+            component: () =>
+                import ( /* webpackChunkName: "folder" */ '../views/folders/History.vue')
+        }, {
             path: ':id',
             component: () =>
                 import ( /* webpackChunkName: "folder" */ '../views/folders/Folder.vue')

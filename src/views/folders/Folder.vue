@@ -36,7 +36,7 @@
                   网页打开
                 </el-button>
               </a>
-              <a
+              <!-- <a
                 :href="
                   'https://www.bilibili.com/blackboard/newplayer.html?high_quality=1&danmaku=0&playlist=true&playlist_order=sequential&musth5=1&noEndPanel=0&crossDomain=1&autoplay=1&aid=' +
                   item.id +
@@ -47,7 +47,7 @@
                   <i class="el-icon-link"></i>
                   纯享播放器
                 </el-button>
-              </a>
+              </a> -->
               <a :href="item.link" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-top-right"></i>

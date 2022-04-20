@@ -22,7 +22,7 @@
           <i class="el-icon-takeaway-box"></i>
           <span slot="title">稍后再看</span>
         </el-menu-item>
-        <el-menu-item index="/folders/history" disabled>
+        <el-menu-item index="/folders/history">
           <i class="el-icon-time"></i>
           <span slot="title">历史记录</span>
         </el-menu-item>
