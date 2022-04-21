@@ -54,7 +54,7 @@ export default {
             }, 300)
         },
         fetchPic(index, path, name) {
-            console.log("<正在>加载第", index, `个${name}`);
+            // console.log("<正在>加载第", index, `个${name}`);
             let o_cover_url = path[name];
             if (path['based_' + name] == true) {
                 // console.log(path['based_' + name]);
@@ -64,7 +64,7 @@ export default {
                     path['based_' + name] =
                         "data:image/png;base64," + res.data;
                     path['parsed_' + name] = true;
-                    console.log("[完成]加载第", index, `个${name}`);
+                    // console.log("[完成]加载第", index, `个${name}`);
                     // console.log(res.data);
                     this.$nextTick(() => {
                         this.$forceUpdate();
