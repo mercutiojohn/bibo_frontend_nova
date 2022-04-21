@@ -286,13 +286,16 @@
 </template>
 
 <script>
-import Vue from "vue";
-import { Table } from "element-ui";
-import Sidebar from "./Sidebar.vue";
-Vue.use(Table);
+import tools from "@/mixin/tools";
+import shareUtils from "@/mixin/shareUtils"
+import playUtils from "@/mixin/playUtils"
+import getPicUtils from "@/mixin/getPicUtils"
+import folderApis from "@/apis/folderApis"
+import videoApis from "@/apis/videoApis"
 export default {
   name: "Folder",
-  components: { Sidebar },
+  components: { },
+  mixins:[shareUtils,playUtils,tools,getPicUtils,folderApis,videoApis],
   data() {
     return {
       ids_raw: [],
@@ -328,17 +331,18 @@ export default {
       this.infos = [];
       this.$forceUpdate();
       this.$nextTick(() => {
-        this.getIds();
+        this.loadIds();
       });
     },
 
     loads() {
-      this.subLoading = true;
-      this.pageNumber++;
-      this.parseIds();
+      if(!this.subLoading){
+        this.pageNumber++;
+        this.parseIds();
+        this.subLoading = true;
+      }
     },
-    getIds() {
-      this.loading = true;
+    getIds(callback) {
       const data = {
         fid: this.fid,
         cookies: this.settings.cookies,
@@ -347,8 +351,11 @@ export default {
         data: this.qs.stringify(data),
         url: "/favourites/ids_list",
       };
-      this.$api(options).then((res) => {
-        // console.log(res.data);
+      this.$api(options).then(callback);
+    },
+    loadIds(){
+      this.loading = true;
+      this.getIds((res) => {
         this.ids_raw = res.data.data;
         this.parseIds();
       });
@@ -384,18 +391,10 @@ export default {
       }
       // console.log(ids);
       //   console.log(this.ids);
-      this.getInfos(ids, start, end);
+      this.loadInfos(ids, start, end);
     },
-    async getInfos(ids, start, end) {
-      const data = {
-        ids: ids,
-        cookies: this.settings.cookies,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/favourites/infos_list",
-      };
-      this.$api(options).then((res) => {
+    loadInfos(ids, start, end) {
+      this.getInfos(ids,(res) => {
         // console.log(res.data);
         for (let item of res.data.data) {
           this.infos.push(item);
@@ -429,122 +428,26 @@ export default {
         }
         this.loading = false;
         this.subLoading = false;
+        setTimeout(()=>{
+          this.loadPic(start, end, this.infos, 'cover')
+          this.loadSubPic(start, end, this.infos, 'upper','face')
+        }, 100);
         for (let i = start; i < end; i++) {
-          this.getCover(this.infos[i].cover, "video", i);
-          this.getCover(this.infos[i].upper.face, "face", i);
-          this.getVideoPages(this.infos[i].id, i);
-          this.getTags(this.infos[i].id, i);
+          this.loadVideoPages(this.infos[i].id, i);
+          this.loadTags(this.infos[i].id, i);
         }
       });
     },
-    getBasedPic(url, callback) {
-      const data = {
-        cover_url: url,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/cover",
-      };
-      this.$api(options).then(callback).catch(console.error);
-    },
-    getCover(url, type, index) {
-      if (this.loading) return;
-      let o_cover_url = url;
-      if (type == "video") {
-        if (this.infos[index].parsed_cover == true) {
-          return this.infos[index].based_cover;
-        } else {
-          o_cover_url = o_cover_url + "@351w_219h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.infos[index].based_cover = "data:image/png;base64," + res.data;
-            this.infos[index].parsed_cover = true;
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              // console.log("based cover", index);
-            });
-          });
-          return this.infos[index].based_cover;
-        }
-      } else if (type == "face") {
-        if (this.infos[index].upper.parsed_face == true) {
-          return this.infos[index].upper.based_face;
-        } else {
-          o_cover_url = o_cover_url + "@200w_200h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.infos[index].upper.based_face =
-              "data:image/png;base64," + res.data;
-            this.infos[index].upper.parsed_face = true;
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              // console.log("based face", index);
-            });
-          });
-          return this.infos[index].upper.based_face;
-        }
-      }
-    },
-    checkIfLoaded(item, type) {
-      if (type == "video") {
-        return item.based_cover;
-      } else if (type == "face") {
-        return item.upper.based_face;
-      }
-    },
-    getDate(datestring) {
-      return new Date(datestring * 1000).toLocaleString();
-    },
-    briefParseReturn(text) {
-      return text.replace(/[\n]/g, "<br/>");
-    },
-    checkTime(i) {
-      if (i < 10) {
-        i = "0" + i;
-      }
-      return i;
-    },
-    parseNumber(num) {
-      if (num > 10000) {
-        return (num / 10000).toFixed(2) + "万";
-      } else {
-        return num;
-      }
-    },
-    getTime(timestring) {
-      let h = new Date(timestring * 1000).getUTCHours();
-      let m = new Date(timestring * 1000).getMinutes();
-      let s = new Date(timestring * 1000).getSeconds();
-      m = this.checkTime(m);
-      s = this.checkTime(s);
-      return (h != 0 ? h + ":" : "") + m + ":" + s;
-    },
-    getVideoPages(aid, index) {
-      const data = {
-        aid: aid,
-        cookies: this.settings.cookies,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/video/pages_list",
-      };
-      this.$api(options).then((res) => {
-        // console.log(res.data);
+    loadVideoPages(aid, index) {
+      this.getVideoPages(aid, (res) => {
         this.infos[index].pages = res.data.data;
         this.$nextTick(() => {
           this.$forceUpdate();
         });
       });
     },
-    getTags(aid, index) {
-      const data = {
-        aid: aid,
-        cookies: this.settings.cookies,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/video/tags_list",
-      };
-      this.$api(options).then((res) => {
-        // console.log(res.data);
+    loadTags(aid,index){
+      this.getTags(aid,(res) => {
         this.infos[index].tags = res.data.data;
         this.$nextTick(() => {
           this.$forceUpdate();
@@ -552,43 +455,12 @@ export default {
       });
     },
     handleCollapseChange() {},
-    play(aid, bvid, cid, page, info) {
-      const obj = {
-        aid: aid,
-        bvid: bvid,
-        useBvid: false,
-        usePage: true,
-        page: page,
-        cid: cid,
-        info: info,
-      };
-      console.log(page, obj);
-      this.$store.commit("play", obj);
-      this.$bus.$emit("reloadVideo", "video");
-    },
-    share(title, link, desc, icon, from) {
-      this.$share.setShareData({
-        icon: icon,
-        link: link,
-        title: title,
-        desc: desc,
-        from: from,
-      });
-      try {
-        this.$share.call();
-        // 如果是分享到微信则需要 nativeShare.call('wechatFriend')
-        // 类似的命令下面有介绍
-      } catch (err) {
-        // 如果不支持，你可以在这里做降级处理
-        console.log(err);
-      }
-    },
   },
   created() {},
   mounted() {
     console.log(this.settings);
     if (this.checkLogin()) {
-      this.getIds();
+      this.loadIds();
     } else {
       this.empty = true;
       console.log("未登录", this.settings);

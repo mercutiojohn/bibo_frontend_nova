@@ -51,7 +51,7 @@
           >
             <div class="left">
               <div class="cover">
-                <img v-lazy="item.based_cover" alt="" srcset="" />
+                <img v-lazy="item.based_pic" alt="" srcset="" />
               </div>
             </div>
             <div class="right">
@@ -155,40 +155,31 @@
         </div>
       </div>
     </transition-group>
-    <!-- <div class="live-brief-list">
-      <div
-        class="live-item"
-        v-for="(item, index) in liveBriefList"
-        :key="index"
-      >
-        <div class="extra-info">
-          <span class="info">up主头像：{{ item.face }}</span>
-          <span class="info">链接：{{ item.link }}</span>
-          <span class="info">标题：{{ item.title }}</span>
-          <span class="info">up主头像：{{ item.uid }}</span>
-          <span class="info">up主名称：{{ item.uname }}</span>
-        </div>
-      </div>
-    </div> -->
   </div>
 </template>
 
 <script>
+import tools from "@/mixin/tools";
+import shareUtils from "@/mixin/shareUtils";
+import playUtils from "@/mixin/playUtils";
+import getPicUtils from "@/mixin/getPicUtils";
+import liveApis from "@/apis/liveApis";
 export default {
   name: "Streaming",
   components: {},
+  mixins: [shareUtils, playUtils, tools, getPicUtils, liveApis],
   data() {
     return {
       loading: true,
-      liveList: [],
-      liveBriefList: [],
-      pageSize: 6,
+      pageSize: 20,
       pageNumber: 1,
       empty: false,
+      subLoading: false,
       count: 0,
+
+      liveList: [],
       liveAreas: [],
       indexedAreas: [],
-      subLoading: false,
       livePlayerBaseUrl:
         "https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&",
     };
@@ -200,13 +191,6 @@ export default {
   },
   watch: {},
   methods: {
-    parseNumber(num) {
-      if (num > 10000) {
-        return (num / 10000).toFixed(2) + "万";
-      } else {
-        return num;
-      }
-    },
     getUseDanmaku() {
       if (this.$store.state.config.danmaku) {
         return "danmaku=1";
@@ -214,114 +198,18 @@ export default {
         return "danmaku=0";
       }
     },
-    getBasedPic(url, callback) {
-      const data = {
-        cover_url: url,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/cover",
-      };
-      this.$api(options).then(callback).catch(console.error);
-    },
-    getCover(url, type, index) {
-      // if (this.loading) return;
-      // console.log('正在加载第',index,'个',type);
-      let o_cover_url = url;
-      if (type == "video") {
-        if (this.liveList[index].parsed_cover == true) {
-          return this.liveList[index].based_cover;
-        } else {
-          o_cover_url = o_cover_url + "@351w_219h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.liveList[index].based_cover =
-              "data:image/png;base64," + res.data;
-            this.liveList[index].parsed_cover = true;
-            // console.log('[完成]加载第',index,'个',type);
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              //   console.log("based cover", index);
-            });
-          });
-          return this.liveList[index].based_cover;
-        }
-      } else if (type == "face") {
-        if (this.liveList[index].parsed_face == true) {
-          return this.liveList[index].based_face;
-        } else {
-          o_cover_url = o_cover_url + "@200w_200h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.liveList[index].based_face =
-              "data:image/png;base64," + res.data;
-            this.liveList[index].parsed_face = true;
-            // console.log('[完成]加载第',index,'个',type);
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              //   console.log("based face", index);
-            });
-          });
-          return this.liveList[index].based_face;
-        }
-      }
-    },
-    getLiveList(pn, ps, start, end) {
-      const data = {
-        cookies: this.settings.cookies,
-        pn: pn,
-        ps: ps,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/live/live_list",
-      };
-      this.$api(options).then((res) => {
+    loadLiveList(pn, ps, start, end) {
+      this.getLiveList(pn, ps, start, end, (res) => {
         // console.log(res.data);
         for (let item of res.data.data.list) {
           this.liveList.push(item);
         }
-        setTimeout(this.getLoadingPic(start, end), 100);
+        setTimeout(() => {
+          this.loadPic(start, end, this.liveList, "pic");
+          this.loadPic(start, end, this.liveList, "face");
+        }, 100);
         this.loading = false;
         this.subLoading = false;
-      });
-    },
-    getLoadingPic(start, end) {
-      try {
-        for (let i = start; i < end; i++) {
-          this.liveList[
-            i
-          ].based_cover = require("../../assets/images/video/bili-fail.png");
-          this.liveList[
-            i
-          ].based_face = require("../../assets/images/video/bili-fail.png");
-          this.liveList[i].parsed_cover = false;
-          this.liveList[i].parsed_face = false;
-        }
-      } catch (error) {
-        console.log(`第${start}-${end}张图片加载失败`);
-        setTimeout(()=>{
-        for (let i = start; i < end; i++) {
-          this.getCover(this.liveList[i].pic, "video", i);
-          this.getCover(this.liveList[i].face, "face", i);
-        }
-        },1000)
-      }
-      for (let i = start; i < end; i++) {
-        this.getCover(this.liveList[i].pic, "video", i);
-        this.getCover(this.liveList[i].face, "face", i);
-      }
-    },
-    getLiveBriefList(size) {
-      const data = {
-        cookies: this.settings.cookies,
-        size: size,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/live/live_brief_list",
-      };
-      this.$api(options).then((res) => {
-        // console.log(res.data);
-        this.liveBriefList = res.data.data.items;
       });
     },
     getLoad() {
@@ -340,8 +228,10 @@ export default {
       });
     },
     loads() {
-      if (this.subLoading) return;
-      this.getLoad();
+      if (!this.subLoading) {
+        this.getLoad();
+        this.subLoading = true;
+      }
     },
     getLoadPage() {
       let page = this.pageNumber;
@@ -374,7 +264,7 @@ export default {
         "-",
         end
       );
-      this.getLiveList(page, pageSize, start, end);
+      this.loadLiveList(page, pageSize, start, end);
       //   this.loading = false;
       this.pageNumber++;
     },
@@ -406,13 +296,6 @@ export default {
           ] = this.deepCopy(this.liveAreas[i].list[j]);
         }
       }
-    },
-    deepCopy(obj) {
-      var objCopy = {};
-      for (var key in obj) {
-        objCopy[key] = obj[key];
-      }
-      return objCopy;
     },
     playLive(roomid, uid, info) {
       const obj = {

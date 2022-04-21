@@ -37,9 +37,10 @@ Vue.use(VueLazyload, {
 // Bus
 Vue.prototype.$bus = new Vue();
 
-// 
+// NativeShare
 import NativeShare from 'nativeshare'
 Vue.prototype.$share = new NativeShare();
+
 
 new Vue({
     router,

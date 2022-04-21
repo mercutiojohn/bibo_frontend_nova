@@ -1,7 +1,13 @@
 <template>
   <div class="history">
     <transition-group name="el-fade-in">
-      <div class="item-list" v-infinite-scroll="loads" v-if="!loading" key="1">
+      <div
+        class="item-list"
+        v-infinite-scroll="loads"
+        v-if="!loading"
+        key="1"
+        infinite-scroll-immediate="false"
+      >
         <el-card
           class="box-card history-item"
           v-for="(item, index) in historyList"
@@ -62,7 +68,7 @@
           <div class="item-details floated">
             <div class="left">
               <div class="cover">
-                <img v-lazy="item.based_cover" alt="" srcset="" />
+                <img v-lazy="item.based_pic" alt="" srcset="" />
               </div>
               <div class="public-stats">
                 <el-tooltip
@@ -238,28 +244,30 @@
               }}</span>
               <div class="times-info">
                 <span class="info inactive-text">
-                    <i class="el-icon-view"></i>
+                  <i class="el-icon-view"></i>
                   <span class="info"> {{ getDate(item.view_at) }}</span>
                 </span>
                 <span class="info inactive-text">
-                    <i class="el-icon-upload2"></i>
+                  <i class="el-icon-upload2"></i>
                   <span class="info"> {{ getDate(item.pubdate) }}</span>
                 </span>
               </div>
               <span class="info">
-                  {{ item.device }}
-                    <i :class="{
-                        'el-icon-mobile':item.device == 1,
-                        'el-icon-mobile':item.device == 3,
-                        'el-icon-mobile':item.device == 5,
-                        'el-icon-mobile':item.device == 7,
-                        'el-icon-monitor':item.device == 2,
-                        'el-icon-monitor':item.device == 4,
-                        'el-icon-monitor':item.device == 6,
-                        'el-icon-monitor':item.device == 33,
-                        'el-icon-monitor':item.device == 0,
-                        'el-icon-monitor':item.device == 8,
-                    }"></i>
+                {{ item.device }}
+                <i
+                  :class="{
+                    'el-icon-mobile': item.device == 1,
+                    'el-icon-mobile': item.device == 3,
+                    'el-icon-mobile': item.device == 5,
+                    'el-icon-mobile': item.device == 7,
+                    'el-icon-monitor': item.device == 2,
+                    'el-icon-monitor': item.device == 4,
+                    'el-icon-monitor': item.device == 6,
+                    'el-icon-monitor': item.device == 33,
+                    'el-icon-monitor': item.device == 0,
+                    'el-icon-monitor': item.device == 8,
+                  }"
+                ></i>
               </span>
               <!-- 1 3 5 7：手机端
                 2：web端
@@ -394,23 +402,31 @@
 </template>
 
 <script>
+import tools from "@/mixin/tools";
+import shareUtils from "@/mixin/shareUtils";
+import playUtils from "@/mixin/playUtils";
+import getPicUtils from "@/mixin/getPicUtils";
+import historyApis from "@/apis/historyApis";
 export default {
   name: "History",
   components: {},
+  mixins: [shareUtils, playUtils, tools, getPicUtils,historyApis],
   data() {
     return {
       loading: true,
-      historyList: [],
-      liveBriefList: [],
       pageSize: 10,
       pageNumber: 1,
       empty: false,
+      subLoading: false,
       count: 0,
+
+      historyList: [],
+      liveBriefList: [],
       liveAreas: [],
       indexedAreas: [],
-      subLoading: false,
       livePlayerBaseUrl:
         "https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&",
+      waitingLoad: false,
     };
   },
   computed: {
@@ -420,117 +436,13 @@ export default {
   },
   watch: {},
   methods: {
-    parseNumber(num) {
-      if (num > 10000) {
-        return (num / 10000).toFixed(2) + "万";
-      } else {
-        return num;
+    loads() {
+      this.subLoading = true;
+      if (!this.waitingLoad) {
+        console.log("load");
+        this.getLoad();
+        this.waitingLoad = true;
       }
-    },
-    getUseDanmaku() {
-      if (this.$store.state.config.danmaku) {
-        return "danmaku=1";
-      } else {
-        return "danmaku=0";
-      }
-    },
-    getBasedPic(url, callback) {
-      const data = {
-        cover_url: url,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/cover",
-      };
-      this.$api(options).then(callback).catch(console.error);
-    },
-    getCover(url, type, index) {
-      console.log("正在加载第", index, "个", type);
-      //   if (this.loading) return;
-      let o_cover_url = url;
-      if (type == "video") {
-        if (this.historyList[index].parsed_cover == true) {
-          return this.historyList[index].based_cover;
-        } else {
-          o_cover_url = o_cover_url + "@351w_219h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.historyList[index].based_cover =
-              "data:image/png;base64," + res.data;
-            this.historyList[index].parsed_cover = true;
-            console.log("[完成]加载第", index, "个", type);
-
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              //   console.log("based cover", index);
-            });
-          });
-          return this.historyList[index].based_cover;
-        }
-      } else if (type == "face") {
-        if (this.historyList[index].owner.parsed_face == true) {
-          return this.historyList[index].owner.based_face;
-        } else {
-          o_cover_url = o_cover_url + "@200w_200h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.historyList[index].owner.based_face =
-              "data:image/png;base64," + res.data;
-            this.historyList[index].owner.parsed_face = true;
-            console.log("[完成]加载第", index, "个", type);
-
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              //   console.log("based face", index);
-            });
-          });
-          return this.historyList[index].owner.based_face;
-        }
-      }
-    },
-    getLoadingPic(start, end) {
-      try {
-        for (let i = start; i < end; i++) {
-          this.historyList[
-            i
-          ].based_cover = require("../../assets/images/video/bili-fail.png");
-          this.historyList[
-            i
-          ].owner.based_face = require("../../assets/images/video/bili-fail.png");
-          this.historyList[i].parsed_cover = false;
-          this.historyList[i].owner.parsed_face = false;
-        }
-      } catch (error) {
-        console.log(`第${start}-${end}张图片加载失败`);
-        setTimeout(() => {
-          for (let i = start; i < end; i++) {
-            this.getCover(this.historyList[i].pic, "video", i);
-            this.getCover(this.historyList[i].owner.face, "face", i);
-          }
-        }, 1000);
-      }
-      for (let i = start; i < end; i++) {
-        this.getCover(this.historyList[i].pic, "video", i);
-        this.getCover(this.historyList[i].owner.face, "face", i);
-      }
-    },
-    getHistoryList(pn, ps, start, end) {
-      const data = {
-        cookies: this.settings.cookies,
-        pn: pn,
-        ps: ps,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/history/history_info",
-      };
-      this.$api(options).then((res) => {
-        // console.log(res.data);
-        for (let item of res.data.data) {
-          this.historyList.push(item);
-        }
-        setTimeout(this.getLoadingPic(start, end), 100);
-        this.loading = false;
-        this.subLoading = false;
-      });
     },
     getLoad() {
       const data = {
@@ -549,12 +461,6 @@ export default {
         this.getLoadPage();
       });
     },
-    loads() {
-      if (this.subLoading) {
-        return;
-      }
-      this.getLoad();
-    },
     getLoadPage() {
       let page = this.pageNumber;
       const length = this.count;
@@ -570,7 +476,6 @@ export default {
         // this.subLoading = false;
         return null;
       }
-      this.subLoading = true;
       console.log(end, ">", length, end > length);
       if (end > length) {
         console.log("end changed from", end, "to", length);
@@ -586,74 +491,25 @@ export default {
         "-",
         end
       );
-      this.getHistoryList(page, pageSize, start, end);
-      //   this.loading = false;
+      this.loadHistoryList(page, pageSize, start, end);
       this.pageNumber++;
     },
-    play(aid, bvid, cid, page, info) {
-      const obj = {
-        aid: aid,
-        bvid: bvid,
-        useBvid: false,
-        usePage: true,
-        page: page,
-        cid: cid,
-        info: info,
-      };
-      console.log(page, obj);
-      this.$store.commit("play", obj);
-      this.$bus.$emit("reloadVideo", "video");
-    },
-    getDate(datestring) {
-      return new Date(datestring * 1000).toLocaleString();
-    },
-    getTime(timestring) {
-      let h = new Date(timestring * 1000).getUTCHours();
-      let m = new Date(timestring * 1000).getMinutes();
-      let s = new Date(timestring * 1000).getSeconds();
-      m = this.checkTime(m);
-      s = this.checkTime(s);
-      return (h != 0 ? h + ":" : "") + m + ":" + s;
-    },
-    checkTime(i) {
-      if (i < 10) {
-        i = "0" + i;
-      }
-      return i;
-    },
-    briefParseReturn(text) {
-      return text.replace(/[\n]/g, "<br/>");
-    },
-    share(title, link, desc, icon, from) {
-      this.$share.setShareData({
-        icon: icon,
-        link: link,
-        title: title,
-        desc: desc,
-        from: from,
-      });
-      try {
-        this.$share.call();
-        // 如果是分享到微信则需要 nativeShare.call('wechatFriend')
-        // 类似的命令下面有介绍
-      } catch (err) {
-        // 如果不支持，你可以在这里做降级处理
-        console.log(err);
-      }
-    },
-    play(aid, bvid, cid, page, info) {
-      const obj = {
-        aid: aid,
-        bvid: bvid,
-        useBvid: false,
-        usePage: true,
-        page: page,
-        cid: cid,
-        info: info,
-      };
-      console.log(page, obj);
-      this.$store.commit("play", obj);
-      this.$bus.$emit("reloadVideo", "video");
+    loadHistoryList(pn, ps, start, end){
+      this.getHistoryList(pn, ps, (res) => {
+        // console.log(res.data);
+        for (let item of res.data.data) {
+          this.historyList.push(item);
+        }
+        setTimeout(() => {
+          this.loadPic(start, end, this.historyList, "pic");
+          this.loadSubPic(start, end, this.historyList, "owner", "face");
+        }, 100);
+        this.loading = false;
+        this.subLoading = false;
+        setTimeout(() => {
+          this.waitingLoad = false;
+        }, 100);
+      })
     },
   },
 
@@ -904,18 +760,17 @@ export default {
 }
 
 .history .el-collapse-item__header {
-    box-sizing: border-box;
-    padding: 0 10px;
+  box-sizing: border-box;
+  padding: 0 10px;
 }
 
 .history .el-collapse {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #eee;
 }
 
 .history .el-collapse-item__content {
-    padding-bottom: 0;
+  padding-bottom: 0;
 }
-
 </style>
