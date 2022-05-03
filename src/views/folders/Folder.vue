@@ -1,4 +1,4 @@
-<template>
+tempate>
   <div class="folder">
     <!-- {{ fid }} -->
     <!-- {{ ids_raw }} -->
@@ -237,7 +237,7 @@
                 item.bvid
               }}</span>
               <span class="info inactive-text">
-                收藏时间:{{ getDate(item.ctime) }}
+                视频发布时间:{{ getDate(item.ctime) }}
               </span>
               <!-- <span class="info">视频发布时间:{{ item.pubtime }}</span> -->
               <!-- <span class="info">视频发布时间:{{  getDate(item.pubtime) }}</span> -->
