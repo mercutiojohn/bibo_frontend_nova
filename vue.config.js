@@ -1,7 +1,7 @@
 module.exports = {
     pwa: {
         name: '必播',
-        themeColor: '#eeeeee',
+        themeColor: '#ffffff',
         msTileColor: '#FFFFFF',
         manifestOptions: {
             background_color: '#eeeeee'
