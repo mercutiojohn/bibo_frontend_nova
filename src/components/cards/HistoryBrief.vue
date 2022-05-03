@@ -3,15 +3,33 @@
     <div class="history-brief-list">
       <div
         class="live-item"
-        v-for="(item, index) in liveBriefList"
+        v-for="(item, index) in historyList"
         :key="index"
-        @click="playLive(item.link,item.uid,item)"
+        @click="playSimple(item.aid, item.bvid, item.page.cid, 1)"
       >
         <div class="avatar">
-          <img v-lazy="item.based_face" alt="" srcset="" />
+          <img v-lazy="item.based_pic" alt="" srcset="" />
         </div>
-        <span class="uname">{{ item.uname }}</span>
-        <span class="title">{{ item.title }}</span>
+        <div class="duration" v-if="item.progress != -1">
+          <div
+            class="duration-bar"
+            :style="'width:' + (item.progress / item.duration) * 100 + '%'"
+          ></div>
+        </div>
+        <div class="duration-end" v-else>
+          <span class="info">已看完</span>
+        </div>
+        <div class="duration-stats" v-if="item.progress != -1">
+          <span class="info">{{ getTime(item.progress) }}</span>
+          <span class="info">{{ getTime(item.duration) }}</span>
+        </div>
+        <div class="details">
+          <span class="uname">{{ item.title }}</span>
+          <span class="title">{{ item.owner.name }}</span>
+          <span class="title"
+            >看到{{ item.page.page }} - {{ item.page.part }}</span
+          >
+        </div>
         <!-- <div class="extra-info">
           <span class="info">up主头像：{{ item.face }}</span>
           <span class="info">链接：{{ item.link }}</span>
@@ -25,13 +43,25 @@
 </template>
 
 <script>
+import tools from "@/mixin/tools";
+import shareUtils from "@/mixin/shareUtils";
+import playUtils from "@/mixin/playUtils";
+import getPicUtils from "@/mixin/getPicUtils";
+import historyApis from "@/apis/historyApis";
 export default {
   name: "HistoryBrief",
   components: {},
+  mixins: [shareUtils, playUtils, tools, getPicUtils, historyApis],
   data() {
     return {
-      liveBriefList: [],
-      size: 10,
+      loading: true,
+      pageSize: 10,
+      pageNumber: 1,
+      empty: false,
+      subLoading: false,
+      count: 0,
+      historyList: [],
+      waitingLoad: false,
     };
   },
   computed: {
@@ -41,92 +71,85 @@ export default {
   },
   watch: {},
   methods: {
-    parseRoomId(text) {
-      return text
-        .replace("https://live.bilibili.com/", "")
-        .replace("?broadcast_type=0", "");
-    },
-    getLiveBriefList(size) {
-      const data = {
-        cookies: this.settings.cookies,
-        size: size,
-      };
-      const options = {
-        data: this.qs.stringify(data),
-        url: "/live/live_brief_list",
-      };
-      this.$api(options).then((res) => {
-        console.log(res.data);
-        this.liveBriefList = res.data.data.items;
-        for (let i = 0; i < size; i++) {
-          this.getCover(this.liveBriefList[i].face, "face", i);
-          this.liveBriefList[i].link = this.parseRoomId(
-            this.liveBriefList[i].link
-          );
-        }
-      });
-    },
-    getCover(url, type, index) {
-      if (this.loading) return;
-      let o_cover_url = url;
-      if (type == "video") {
-        if (this.liveBriefList[index].parsed_cover == true) {
-          return this.liveBriefList[index].based_cover;
-        } else {
-          o_cover_url = o_cover_url + "@351w_219h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.liveBriefList[index].based_cover =
-              "data:image/png;base64," + res.data;
-            this.liveBriefList[index].parsed_cover = true;
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              //   console.log("based cover", index);
-            });
-          });
-          return this.liveBriefList[index].based_cover;
-        }
-      } else if (type == "face") {
-        if (this.liveBriefList[index].parsed_face == true) {
-          return this.liveBriefList[index].based_face;
-        } else {
-          o_cover_url = o_cover_url + "@200w_200h_1c_100q.webp";
-          this.getBasedPic(o_cover_url, (res) => {
-            this.liveBriefList[index].based_face =
-              "data:image/png;base64," + res.data;
-            this.liveBriefList[index].parsed_face = true;
-            this.$nextTick(() => {
-              this.$forceUpdate();
-              //   console.log("based face", index);
-            });
-          });
-          return this.liveBriefList[index].based_face;
-        }
+    loads() {
+      this.subLoading = true;
+      if (!this.waitingLoad) {
+        console.log("load");
+        this.getLoad();
+        this.waitingLoad = true;
       }
     },
-    getBasedPic(url, callback) {
+    getLoad() {
       const data = {
-        cover_url: url,
+        cookies: this.settings.cookies,
+        pn: this.pageNumber,
+        ps: this.pageSize,
       };
       const options = {
         data: this.qs.stringify(data),
-        url: "/cover",
+        url: "/history/history_info",
       };
-      this.$api(options).then(callback).catch(console.error);
+      this.$api(options).then((res) => {
+        console.log(res.data.data);
+        // this.count += res.data.data.length;
+        this.count += this.pageSize;
+        this.getLoadPage();
+      });
     },
-    playLive(roomid,uid,info){
-    const obj = {
-        roomid: roomid,
-        uid: uid,
-        info: info,
-      };
-      console.log(roomid, uid, obj);
-      this.$store.commit("playLive", obj);
-      this.$bus.$emit("reloadVideo", "live");
-    }
+    getLoadPage() {
+      let page = this.pageNumber;
+      const length = this.count;
+      console.log(length);
+      const pageSize = this.pageSize;
+      let start = (page - 1) * pageSize;
+      let end = (page - 1) * pageSize + pageSize;
+      if (start == length) {
+        this.empty = true;
+        // this.subLoading = false;
+        return null;
+      } else if (start > length) {
+        // this.subLoading = false;
+        return null;
+      }
+      console.log(end, ">", length, end > length);
+      if (end > length) {
+        console.log("end changed from", end, "to", length);
+        end = length;
+      }
+      console.log(
+        "当前页码：",
+        page,
+        "每页个数：",
+        pageSize,
+        "index：",
+        start,
+        "-",
+        end
+      );
+      this.loadHistoryList(page, pageSize, start, end);
+      this.pageNumber++;
+    },
+    loadHistoryList(pn, ps, start, end) {
+      this.getHistoryList(pn, ps, (res) => {
+        // console.log(res.data);
+        for (let item of res.data.data) {
+          this.historyList.push(item);
+        }
+        setTimeout(() => {
+          this.loadPic(start, end, this.historyList, "pic");
+          this.loadSubPic(start, end, this.historyList, "owner", "face");
+        }, 100);
+        this.loading = false;
+        this.subLoading = false;
+        setTimeout(() => {
+          this.waitingLoad = false;
+        }, 100);
+      });
+    },
   },
   created() {},
   mounted() {
-    this.getLiveBriefList(this.size);
+    this.getLoad();
   },
   beforeDestroy() {},
 };
@@ -139,15 +162,14 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 .live-item {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   border-radius: 10px;
   background: #fff;
-  gap:5px;
   cursor: pointer;
-  transition: transform .1s ease, box-shadow .2s ease;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  overflow: hidden;
 }
 .live-item:hover {
   transform: translateY(-3px);
@@ -158,9 +180,8 @@ export default {
   box-shadow: 0 2px 5px 1px #00000026;
 }
 .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 5px;
+  width: 100%;
+  height: 120px;
   overflow: hidden;
 }
 .avatar img {
@@ -168,10 +189,47 @@ export default {
   height: 100%;
   object-fit: cover;
 }
-.live-item .title{
-    font-size: .8em;
+.live-item .details {
+  padding: 4px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.live-item .uname{
-    font-weight: bold;
+.live-item .title {
+  font-size: 0.8em;
+}
+.live-item .uname {
+  font-weight: bold;
+}
+.duration {
+  background: #eee;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.duration-end{
+  font-size: .8em;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 20px;
+}
+.duration-end .info{
+  border-radius: 5px;
+  padding: 5px;
+  background: #eee;
+}
+.duration-bar {
+  background: var(--accent-color);
+  height: 100%;
+  border-radius: 3px;
+}
+.duration-stats {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  font-size: .7em;
 }
 </style>

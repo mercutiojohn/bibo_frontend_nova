@@ -2,19 +2,12 @@
   <div class="folder-main">
     <h1>你好，{{ userInfo.uname }}</h1>
     <div class="card-title">
-      <h2>从离开的视频继续</h2>
-      <router-link to="/folders/history">
-        <el-button>全部历史 <i class="el-icon-arrow-right"></i></el-button>
-      </router-link>
-    </div>
-    <history-brief />
-    <div class="card-title">
       <h2>之前搁置的视频</h2>
       <router-link to="/folders/watch-later">
         <el-button>全部稍后再看 <i class="el-icon-arrow-right"></i></el-button>
       </router-link>
     </div>
-    <to-view-brief />
+    <!-- <to-view-brief /> -->
     <div class="card-title">
       <h2>正在直播的UP主</h2>
       <router-link to="/folders/streaming">
@@ -23,7 +16,14 @@
     </div>
     <LiveBrief />
     <div class="card-title">
-      <h2>特别关注</h2>
+      <h2>从离开的视频继续</h2>
+      <router-link to="/folders/history">
+        <el-button>全部历史 <i class="el-icon-arrow-right"></i></el-button>
+      </router-link>
+    </div>
+    <history-brief />
+    <div class="card-title">
+      <h2>特别关注动态</h2>
       <!-- <router-link to="/folders/">
         <el-button>默认收藏夹 <i class="el-icon-arrow-right"></i></el-button>
       </router-link> -->

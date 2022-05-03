@@ -62,12 +62,7 @@
                 <span class="info inactive-text select-enable">{{
                   item.roomid
                 }}</span>
-                <span class="info"
-                  >{{ indexedAreas[item.parent_area_id].name }} ·
-                  {{
-                    indexedAreas[item.parent_area_id].list[item.area_id].name
-                  }}</span
-                >
+                <span class="info">{{ getAreaText(item) }}</span>
                 <el-tooltip
                   class="item"
                   effect="dark"
@@ -295,6 +290,17 @@ export default {
             this.liveAreas[i].list[j].id
           ] = this.deepCopy(this.liveAreas[i].list[j]);
         }
+      }
+    },
+    getAreaText(item) {
+      try {
+        return `${this.indexedAreas[item.parent_area_id].name}  ·
+                  ${
+                    this.indexedAreas[item.parent_area_id].list[item.area_id]
+                      .name
+                  }`;
+      } catch (error) {
+        return ''
       }
     },
     playLive(roomid, uid, info) {

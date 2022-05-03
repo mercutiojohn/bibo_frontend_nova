@@ -10,8 +10,10 @@
         <div class="avatar">
           <img v-lazy="item.based_face" alt="" srcset="" />
         </div>
-        <span class="uname">{{ item.uname }}</span>
-        <span class="title">{{ item.title }}</span>
+        <div class="details">
+          <span class="uname">{{ item.uname }}</span>
+          <span class="title">{{ item.title }}</span>
+        </div>
         <!-- <div class="extra-info">
           <span class="info">up主头像：{{ item.face }}</span>
           <span class="info">链接：{{ item.link }}</span>
@@ -136,16 +138,16 @@ export default {
 .live-brief-list {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 .live-item {
-  padding: 20px;
+  padding: 15px;
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   align-items: flex-start;
   border-radius: 10px;
   background: #fff;
-  gap:5px;
+  gap:15px;
   cursor: pointer;
   transition: transform .1s ease, box-shadow .2s ease;
 }
@@ -168,10 +170,17 @@ export default {
   height: 100%;
   object-fit: cover;
 }
+.live-item .details{
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 80px - 15px);
+  gap:5px;
+}
 .live-item .title{
-    font-size: .8em;
+    font-size: .9em;
 }
 .live-item .uname{
     font-weight: bold;
+    font-size: 1.1em;
 }
 </style>

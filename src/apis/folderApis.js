@@ -1,6 +1,5 @@
 export default {
     methods: {
-
         getInfos(ids, callback) {
             const data = {
                 ids: ids,

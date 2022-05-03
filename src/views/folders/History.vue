@@ -17,7 +17,7 @@
           <div slot="header" class="card-header">
             <el-link
               class="title"
-              @click="play(item.id, item.bvid, item.cid, 1, item)"
+              @click="playSimple(item.aid, item.bvid, item.cid, item.page.page)"
               >{{ item.title }}</el-link
             >
             <div class="header-right">
@@ -65,7 +65,7 @@
               </el-button>
             </div>
           </div>
-          <div class="item-details floated">
+          <div class="item-details floated" @click="playSimple(item.aid, item.bvid, item.cid, item.page.page)">
             <div class="left">
               <div class="cover">
                 <img v-lazy="item.based_pic" alt="" srcset="" />
@@ -421,11 +421,6 @@ export default {
       count: 0,
 
       historyList: [],
-      liveBriefList: [],
-      liveAreas: [],
-      indexedAreas: [],
-      livePlayerBaseUrl:
-        "https://www.bilibili.com/blackboard/live/live-activity-player.html?quality=0&",
       waitingLoad: false,
     };
   },
@@ -566,12 +561,13 @@ export default {
   gap: 20px;
   /* height: 100%; */
   padding: 15px;
-  /* cursor: pointer; */
+  cursor: pointer;
   /* backdrop-filter: blur(100px); */
 }
-/* .item-details:hover {
+
+.item-details:hover {
   background: #eee;
-} */
+}
 .item-details .cover {
   --width: 200px;
   width: var(--width);

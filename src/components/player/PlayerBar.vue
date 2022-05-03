@@ -1,13 +1,19 @@
 <template>
   <div :class="{ 'player-bar': true, 'player-bar-maximized': expandMode }">
     <transition name="el-zoom-in-bottom">
-      <div class="expanded-mode" v-if="expandMode && (player.playing || playerLive.playing)">
+      <div
+        class="expanded-mode"
+        v-if="expandMode && (player.playing || playerLive.playing)"
+      >
         <div class="video-box-template"></div>
         <div class="main-content fix-scrollbar">
           <div class="video-info" v-if="type == 'video'">
             <div class="title-box">
-              <div class="title">{{player.info.title}}</div>
-              <div class="info select-enable" v-html="briefParseReturn(player.info.intro)"></div>
+              <div class="title">{{ player.info.title }}</div>
+              <div
+                class="info select-enable"
+                v-html="briefParseReturn(player.info.intro)"
+              ></div>
             </div>
             <div class="info-header-bar"><span>视频列表</span></div>
             <div class="pages">
@@ -35,9 +41,9 @@
           </div>
           <div class="live-info" v-if="type == 'live'">
             <div class="title-box">
-              <div class="title">{{playerLive.info.title}}</div>
-              <div class="info">{{playerLive.info.uname}}</div>
-              <div class="info">{{playerLive.info.uid}}</div>
+              <div class="title">{{ playerLive.info.title }}</div>
+              <div class="info">{{ playerLive.info.uname }}</div>
+              <div class="info">{{ playerLive.info.uid }}</div>
               <!-- <div class="info select-enable" v-html="briefParseReturn(player.info.intro)"></div> -->
             </div>
           </div>
@@ -47,7 +53,8 @@
     <div
       :class="{
         'minimized-mode': true,
-        'bottom-bar-minimized': !expandMode && (player.playing || playerLive.playing),
+        'bottom-bar-minimized':
+          !expandMode && (player.playing || playerLive.playing),
       }"
     >
       <div class="left">
@@ -71,7 +78,10 @@
             {{ playerLive.info.uname }}
           </div>
         </div>
-        <div class="playing-info-not-playing" v-if="!player.playing && !playerLive.playing">
+        <div
+          class="playing-info-not-playing"
+          v-if="!player.playing && !playerLive.playing"
+        >
           <div class="title inactive-text">未在播放</div>
         </div>
       </div>
@@ -80,12 +90,16 @@
       </div>
       <div class="right">
         <div class="playlist"></div>
-        <el-button @click="stopPlayer()" v-if="(player.playing || playerLive.playing)">
-          <i
-            class="el-icon-close"
-          ></i>
+        <el-button
+          @click="stopPlayer()"
+          v-if="player.playing || playerLive.playing"
+        >
+          <i class="el-icon-close"></i>
         </el-button>
-        <el-button @click="changeExpand()" v-if="(player.playing || playerLive.playing)">
+        <el-button
+          @click="changeExpand()"
+          v-if="player.playing || playerLive.playing"
+        >
           <i
             :class="{
               'el-icon-arrow-up': !expandMode,
@@ -97,7 +111,7 @@
     </div>
     <div
       :class="{ 'video-box': true, 'video-box-maximized': expandMode }"
-      v-show="(player.playing || playerLive.playing)"
+      v-show="player.playing || playerLive.playing"
     >
       <!-- <video ref="mainVideo" controls autoplay>
         <source type="application/x-mpegURL" :src="playUrl" id="videoTarget" />
@@ -118,9 +132,12 @@
 <script>
 // import videojs from "video.js";
 // import "videojs-contrib-hls";
+import videoApis from "@/apis/videoApis";
+import folderApis from "@/apis/folderApis"
 export default {
   name: "PlayerBar",
   components: {},
+  mixins: [videoApis,folderApis],
   data() {
     return {
       type: "video",
@@ -165,6 +182,9 @@ export default {
     playerLive: function () {
       return this.$store.getters.getPlayerLive;
     },
+    settings: function () {
+      return this.$store.getters.getSettings;
+    },
   },
   watch: {
     player() {
@@ -189,35 +209,34 @@ export default {
     getVideoIdInfo() {
       if (this.type == "video") {
         return this.player.useBvid
-        ? "bvid=" + this.player.bvid
-        : "aid=" + this.player.aid;
+          ? "bvid=" + this.player.bvid
+          : "aid=" + this.player.aid;
       } else if (this.type == "live") {
         return "cid=" + this.playerLive.roomid;
       } else {
         return this.player.useBvid
-        ? "bvid=" + this.player.bvid
-        : "aid=" + this.player.aid;
+          ? "bvid=" + this.player.bvid
+          : "aid=" + this.player.aid;
       }
-      
     },
     getPageIdInfo() {
       if (this.type == "video") {
         return this.player.usePage
-        ? "page=" + this.player.page
-        : "cid=" + this.player.cid;
+          ? "page=" + this.player.page
+          : "cid=" + this.player.cid;
       } else if (this.type == "live") {
         return "";
       } else {
         return this.player.usePage
-        ? "page=" + this.player.page
-        : "cid=" + this.player.cid;
+          ? "page=" + this.player.page
+          : "cid=" + this.player.cid;
       }
     },
-    getUseDanmaku(){
+    getUseDanmaku() {
       if (this.$store.state.config.danmaku) {
-        return 'danmaku=1';
+        return "danmaku=1";
       } else {
-        return 'danmaku=0';
+        return "danmaku=0";
       }
     },
     getFullUrl() {
@@ -244,6 +263,14 @@ export default {
       this.expandMode ? (this.expandMode = false) : (this.expandMode = true);
     },
     reloadVideo() {
+      this.loadFrame = false;
+      this.type = "video";
+      setTimeout(() => {
+        this.loadFrame = true;
+      }, 5);
+      // this.$refs.iframeVideo.contentWindow.location.reload();
+    },
+    reloadVideoSimple() {
       this.loadFrame = false;
       this.type = "video";
       setTimeout(() => {
@@ -303,9 +330,9 @@ export default {
     briefParseReturn(text) {
       return text.replace(/[\n]/g, "<br/>");
     },
-    stopPlayer(){
+    stopPlayer() {
       this.$store.commit("stopPlayer");
-    }
+    },
     // init() {
     //   this.videoObj = videojs(this.$refs.mainVideo, {
     //     bigPlayButton: false,
@@ -323,7 +350,6 @@ export default {
     //     this.big_size = !this.big_size;
     //   }
     // },
-
   },
   created() {},
   mounted() {
@@ -337,6 +363,32 @@ export default {
       } else if ((data = "video")) {
         this.reloadVideo();
       }
+    });
+    this.$bus.$on("reloadVideoSimple", (data) => {
+      console.log(data);
+      this.getInfos(data.aid + ":2", (res) => {
+        const info = res.data.data[0];
+        console.log("-------INFO------",info);
+        this.getVideoPages(data.aid, (res) => {
+          const pages = res.data.data;
+          console.log(pages);
+          const obj = {
+            aid: data.aid,
+            bvid: data.bvid,
+            useBvid: data.useBvid,
+            usePage: data.usePage,
+            page: data.page,
+            cid: data.cid,
+            info: info
+          };
+          obj.info.pages = pages;
+          this.$store.commit("play", obj);
+          this.reloadVideoSimple(data);
+          // this.$nextTick(() => {
+          //   this.$forceUpdate();
+          // });
+        });
+      });
     });
   },
   beforeDestroy() {},
@@ -445,10 +497,10 @@ export default {
   background: #fff;
   cursor: pointer;
 }
-.pages > .page:hover{
+.pages > .page:hover {
   border: 1px solid var(--accent-color);
 }
-.pages > .page:active{
+.pages > .page:active {
   color: var(--accent-color);
   border: 1px solid var(--accent-color);
 }
@@ -491,17 +543,17 @@ export default {
   flex-direction: column;
   gap: 10px;
 }
-.title-box{
+.title-box {
   display: flex;
   padding: 20px;
   box-sizing: border-box;
   flex-direction: column;
-  gap:10px;
+  gap: 10px;
 }
-.title-box .title{
+.title-box .title {
   font-weight: 800;
 }
-.title-box .info{
-  font-size: .8em;
+.title-box .info {
+  font-size: 0.8em;
 }
 </style>
