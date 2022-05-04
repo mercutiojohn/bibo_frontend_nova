@@ -3,7 +3,7 @@
     <Sidebar />
     <!-- <div class="content"> -->
       <!-- <transition name="el-fade-in"> -->
-        <router-view class="router-cnt fix-scrollbar" />
+        <router-view :class="{'router-cnt':true, 'fix-scrollbar':true, 'router-cnt-collapsed':isCollapse}" />
       <!-- </transition> -->
     <!-- </div> -->
   </div>
@@ -21,12 +21,15 @@ export default {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    isCollapse(){
+      return this.$store.state.isCollapse;
+    }
   },
   watch: {},
   methods: {
     checkLogin(){
       return this.$store.getters.checkLogin;
-    },
+    }
   },
   created() {},
   mounted() {
@@ -49,6 +52,10 @@ export default {
   height: 100%;
   box-sizing: border-box;
   overflow: scroll;
+  transition: width .2s ease;
+}
+.router-cnt-collapsed{
+  width: calc(100% - var(--side-collapse-width));
 }
 /* .folder-frame .content{
   display: flex;

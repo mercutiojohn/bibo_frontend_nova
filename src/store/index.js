@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        isCollapse: false,
         settings: {
             cookies: "",
             uid: '',
@@ -38,6 +39,9 @@ export default new Vuex.Store({
         }
     },
     mutations: {
+        setCollapse(state, status) {
+            state.isCollapse = status;
+        },
         update(state, [key, value]) {
             state[key] = value;
             // console.log(key)

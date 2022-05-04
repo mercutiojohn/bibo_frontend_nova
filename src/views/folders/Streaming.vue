@@ -1,7 +1,7 @@
 <template>
   <div class="streaming">
     <transition-group name="el-fade-in">
-      <div class="item-list" v-infinite-scroll="loads" v-if="!loading" key="1">
+      <div :class="{'item-list':true,'item-list-collapsed':isCollapse}" v-infinite-scroll="loads" v-if="!loading" key="1">
         <el-card
           class="box-card live-item"
           v-for="(item, index) in liveList"
@@ -26,7 +26,7 @@
               <a :href="item.link" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-link"></i>
-                  网页打开
+                  网页
                 </el-button>
               </a>
               <a
@@ -34,19 +34,19 @@
                 target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-link"></i>
-                  纯享播放器
+                  弹窗
                 </el-button>
               </a>
               <a :href="'bilibili://live/' + item.roomid" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-top-right"></i>
-                  本地打开
+                  本地
                 </el-button>
               </a>
             </div>
           </div>
           <div
-            class="item-details floated"
+            :class="{'item-details':true, 'floated':true,'item-details-collapsed':isCollapse}"
             @click="playLive(item.roomid, item.uid, item)"
           >
             <div class="left">
@@ -54,7 +54,7 @@
                 <img v-lazy="item.based_pic" alt="" srcset="" />
               </div>
             </div>
-            <div class="right">
+            <div :class="{'right':true,'right-collapsed':isCollapse}">
               <div class="title">
                 <span class="info">{{ item.title }}</span>
               </div>
@@ -114,7 +114,7 @@
         </el-card>
       </div>
       <div v-else key="2">
-        <div class="item-list skeleton">
+        <div :class="{'item-list':true, 'item-list-collapsed':isCollapse, 'skeleton':true, 'skeleton-collapsed':isCollapse}">
           <el-card class="box-card">
             <div slot="header" class="card-header-loading">
               <el-skeleton :rows="2" animated />
@@ -183,6 +183,9 @@ export default {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    isCollapse(){
+      return this.$store.state.isCollapse;
+    }
   },
   watch: {},
   methods: {
@@ -372,6 +375,9 @@ export default {
   cursor: pointer;
   /* backdrop-filter: blur(100px); */
 }
+.item-details-collapsed{
+  flex-direction: column;
+}
 .item-details:hover {
   background: #eee;
 }
@@ -397,6 +403,9 @@ export default {
   flex-direction: column;
   width: calc(100% - 200px);
   gap: 10px;
+}
+.item-details > .right-collapsed{
+  width:100%;
 }
 .item-details .right .infos {
   display: flex;
@@ -429,11 +438,20 @@ export default {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
 }
+.item-list-collapsed {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
 .skeleton {
   position: fixed;
-  top: calc(61px + 20px);
+  top: calc(var(--head-height) + 20px);
   left: calc(var(--side-width) + 20px);
   width: calc(100vw - var(--side-width) - 40px);
+}
+.skeleton-collapsed{
+  left: calc(var(--side-collapse-width) + 20px);
+  width: calc(100vw - var(--side-collapse-width) - 40px);
 }
 .header-right {
   display: flex;

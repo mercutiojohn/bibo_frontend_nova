@@ -72,7 +72,7 @@ body {
 }
 .main-cnt {
   width: 100%;
-  height: calc(100vh - 61px - 60px);
+  height: calc(100vh - var(--head-height) - 60px);
 }
 a {
   text-decoration: none;

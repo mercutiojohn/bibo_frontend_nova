@@ -1,6 +1,8 @@
 :root {
     --inactive-color: #bbbaba;
     --side-width: 250px;
+    --head-height: 61px;
+    --side-collapse-width: 65px;
     --accent-color: #409EFF;
     --test: #ffbb00;
 }
@@ -119,4 +121,9 @@ body {
 ::-webkit-selection {
     background: var(--accent-color);
     color: #ffffff;
+}
+
+.el-menu--popup {
+    max-height: calc(100vh - 100px);
+    overflow: scroll;
 }

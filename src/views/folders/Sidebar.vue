@@ -1,37 +1,55 @@
 <template>
-  <div class="sidebar fix-scrollbar">
+  <div
+    :class="{
+      sidebar: true,
+      'fix-scrollbar': true,
+      'sidebar-collapsed': isCollapse,
+    }"
+  >
+    <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px">
+      <el-radio-button :label="false">展开</el-radio-button>
+      <el-radio-button :label="true">收起</el-radio-button>
+    </el-radio-group> -->
+    <!-- <el-switch
+      v-model="isCollapse"
+      active-color="#13ce66"
+      inactive-color="#eee"
+      active-text="收起"
+    >
+    </el-switch> -->
     <el-menu
       default-active="2"
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
       router
+      :collapse="isCollapse"
     >
       <el-menu-item index="/folders">
         <i class="el-icon-s-home"></i>
         <span slot="title">首页</span>
       </el-menu-item>
-      <el-menu-item-group title="直播">
-        <el-menu-item index="/folders/streaming">
-          <i class="el-icon-video-play"></i>
-          <span slot="title">正在直播</span>
-        </el-menu-item>
+      <el-menu-item-group v-if="!isCollapse" title="直播"> </el-menu-item-group>
+      <el-menu-item index="/folders/streaming">
+        <i class="el-icon-video-play"></i>
+        <span slot="title">正在直播</span>
+      </el-menu-item>
+      <el-menu-item-group v-if="!isCollapse" title="收藏夹">
       </el-menu-item-group>
-      <el-menu-item-group title="收藏夹">
-        <el-menu-item index="/folders/watch-later" disabled>
-          <i class="el-icon-takeaway-box"></i>
-          <span slot="title">稍后再看</span>
-        </el-menu-item>
-        <el-menu-item index="/folders/history">
-          <i class="el-icon-time"></i>
-          <span slot="title">历史记录</span>
-        </el-menu-item>
-        <el-submenu index="/folders/folder/">
-          <template slot="title">
-            <i class="el-icon-menu"></i>
-            <span>创建的收藏夹</span>
-          </template>
-          <!-- <el-menu-item-group> -->
+      <el-menu-item index="/folders/watch-later" disabled>
+        <i class="el-icon-takeaway-box"></i>
+        <span slot="title">稍后再看</span>
+      </el-menu-item>
+      <el-menu-item index="/folders/history">
+        <i class="el-icon-time"></i>
+        <span slot="title">历史记录</span>
+      </el-menu-item>
+      <el-submenu index="/folders/folder/">
+        <template slot="title">
+          <i class="el-icon-menu"></i>
+          <span slot="title">创建的收藏夹</span>
+        </template>
+        <el-menu-item-group>
           <el-menu-item
             :index="`/folders/${item.id}`"
             v-for="(item, index) in folders"
@@ -43,13 +61,12 @@
               <span class="count">{{ item.media_count }}</span>
             </div>
           </el-menu-item>
-          <!-- </el-menu-item-group> -->
-        </el-submenu>
-        <el-menu-item index="/folders/subscribed" disabled>
-          <i class="el-icon-menu"></i>
-          <span slot="title">订阅的收藏夹</span>
-        </el-menu-item>
-      </el-menu-item-group>
+        </el-menu-item-group>
+      </el-submenu>
+      <el-menu-item index="/folders/subscribed" disabled>
+        <i class="el-icon-menu"></i>
+        <span slot="title">订阅的收藏夹</span>
+      </el-menu-item>
       <!-- <el-menu-item index="5">
         <i class="el-icon-setting"></i>
         <span slot="title">我的关注</span>
@@ -78,9 +95,31 @@ export default {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    isCollapse(){
+      return this.$store.state.isCollapse;
+    }
   },
-  watch: {},
+  watch: {
+    clientWidth(newWidth){
+      watchWidth();
+    }
+  },
   methods: {
+    watchWidth(){
+      if(document.body.clientWidth > 700){
+        this.$store.commit("setCollapse", false);
+      console.log(document.body.clientWidth,this.isCollapse,this.$store.state.isCollapse);
+        this.$nextTick(()=>{
+          this.$forceUpdate();
+        })
+      }else{
+        this.$store.commit("setCollapse", true);
+      console.log(document.body.clientWidth,this.isCollapse,this.$store.state.isCollapse);
+        this.$nextTick(()=>{
+          this.$forceUpdate();
+        })
+      }
+    },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },
@@ -104,6 +143,10 @@ export default {
   created() {},
   mounted() {
     this.getFolders();
+    let _this = this;
+    window.onresize=function(){  
+      _this.watchWidth();  
+    }
   },
   beforeDestroy() {},
 };
@@ -111,13 +154,17 @@ export default {
 
 <style scoped>
 .sidebar {
-  width: 250px;
+  width: var(--side-width);
   height: 100%;
   overflow: scroll;
+  transition: width .2s ease;
+}
+.sidebar-collapsed {
+  width: var(--side-collapse-width);
 }
 .el-menu-vertical-demo {
   height: 100%;
-  width: 100%;
+  /* width: 100%; */
 }
 .folder-title-box {
   display: flex;

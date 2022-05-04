@@ -90,7 +90,7 @@ export default {
 <style scoped>
 .home {
   overflow: scroll;
-  height: calc(100vh - 61px);
+  height: calc(100vh - var(--head-height));
 }
 .login-box {
   padding: 20px;

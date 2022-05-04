@@ -2,7 +2,7 @@
   <div class="history">
     <transition-group name="el-fade-in">
       <div
-        class="item-list"
+        :class="{'item-list':true,'item-list-collapsed':isCollapse}"
         v-infinite-scroll="loads"
         v-if="!loading"
         key="1"
@@ -26,7 +26,7 @@
                 target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-link"></i>
-                  网页打开
+                  网页
                 </el-button>
               </a>
               <!-- <a
@@ -44,7 +44,7 @@
               <a :href="'bilibili://video/' + item.aid" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-top-right"></i>
-                  本地打开
+                  本地
                 </el-button>
               </a>
               <el-button
@@ -65,7 +65,7 @@
               </el-button>
             </div>
           </div>
-          <div class="item-details floated" @click="playSimple(item.aid, item.bvid, item.cid, item.page.page)">
+          <div :class="{'item-details':true, 'floated':true,'item-details-collapsed':isCollapse}" @click="playSimple(item.aid, item.bvid, item.cid, item.page.page)">
             <div class="left">
               <div class="cover">
                 <img v-lazy="item.based_pic" alt="" srcset="" />
@@ -175,7 +175,7 @@
                 </el-tooltip> -->
               </div>
             </div>
-            <div class="right">
+            <div :class="{'right':true,'right-collapsed':isCollapse}">
               <div class="infos">
                 <!-- <span
                   class="info inactive-text select-enable"
@@ -362,7 +362,7 @@
         </el-card>
       </div>
       <div v-else key="2">
-        <div class="item-list skeleton">
+        <div :class="{'item-list':true, 'item-list-collapsed':isCollapse, 'skeleton':true, 'skeleton-collapsed':isCollapse}">
           <el-card class="box-card">
             <div slot="header" class="card-header-loading">
               <el-skeleton :rows="2" animated />
@@ -428,6 +428,9 @@ export default {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    isCollapse(){
+      return this.$store.state.isCollapse;
+    }
   },
   watch: {},
   methods: {
@@ -564,7 +567,9 @@ export default {
   cursor: pointer;
   /* backdrop-filter: blur(100px); */
 }
-
+.item-details-collapsed{
+  flex-direction: column;
+}
 .item-details:hover {
   background: #eee;
 }
@@ -590,6 +595,9 @@ export default {
   flex-direction: column;
   width: calc(100% - 200px);
   gap: 10px;
+}
+.item-details > .right-collapsed{
+  width:100%;
 }
 .item-details .right .infos {
   display: flex;
@@ -622,11 +630,20 @@ export default {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
 }
+.item-list-collapsed {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
 .skeleton {
   position: fixed;
-  top: calc(61px + 20px);
+  top: calc(var(--head-height) + 20px);
   left: calc(var(--side-width) + 20px);
   width: calc(100vw - var(--side-width) - 40px);
+}
+.skeleton-collapsed{
+  left: calc(var(--side-collapse-width) + 20px);
+  width: calc(100vw - var(--side-collapse-width) - 40px);
 }
 .header-right {
   display: flex;

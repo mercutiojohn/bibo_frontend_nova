@@ -1,11 +1,11 @@
-tempate>
+<template>
   <div class="folder">
     <!-- {{ fid }} -->
     <!-- {{ ids_raw }} -->
     <!-- {{infos}} -->
     <transition-group name="el-fade-in">
       <div
-        class="item-list"
+        :class="{'item-list':true,'item-list-collapsed':isCollapse}"
         v-if="!loading"
         v-infinite-scroll="loads"
         infinite-scroll-delay="30"
@@ -33,7 +33,7 @@ tempate>
                 target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-link"></i>
-                  网页打开
+                  网页
                 </el-button>
               </a>
               <!-- <a
@@ -51,7 +51,7 @@ tempate>
               <a :href="item.link" target="_blank"
                 ><el-button style="float: right; padding: 3px 0" type="text">
                   <i class="el-icon-top-right"></i>
-                  本地打开
+                  本地
                 </el-button>
               </a>
               <el-button
@@ -72,7 +72,7 @@ tempate>
               </el-button>
             </div>
           </div>
-          <div class="item-details floated">
+          <div :class="{'item-details':true, 'floated':true,'item-details-collapsed':isCollapse}">
             <div class="left">
               <div class="cover">
                 <img v-lazy="item.based_cover" alt="" srcset="" />
@@ -130,7 +130,7 @@ tempate>
                 </el-tooltip>
               </div>
             </div>
-            <div class="right">
+            <div :class="{'right':true,'right-collapsed':isCollapse}">
               <div class="infos">
                 <span
                   class="brief select-enable"
@@ -262,7 +262,7 @@ tempate>
         </el-card>
       </div>
       <div v-else key="2">
-        <div class="item-list skeleton">
+        <div :class="{'item-list':true, 'item-list-collapsed':isCollapse, 'skeleton':true, 'skeleton-collapsed':isCollapse}">
           <el-card class="box-card">
           <div slot="header" class="card-header-loading">
             <el-skeleton :rows="1" animated />
@@ -315,6 +315,9 @@ export default {
     settings: function () {
       return this.$store.getters.getSettings;
     },
+    isCollapse(){
+      return this.$store.state.isCollapse;
+    }
   },
   watch: {
     fid(newId) {
@@ -479,6 +482,11 @@ export default {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
 }
+.item-list-collapsed {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
 .item-details {
   display: flex;
   /* flex-direction: column; */
@@ -486,6 +494,9 @@ export default {
   /* height: 100%; */
   padding: 20px;
   box-sizing: border-box;
+}
+.item-details-collapsed{
+  flex-direction: column;
 }
 .item-details .cover {
   --width: 150px;
@@ -509,6 +520,9 @@ export default {
   flex-direction: column;
   width: calc(100% - 150px);
   gap: 10px;
+}
+.item-details > .right-collapsed{
+  width:100%;
 }
 .item-details .right .infos {
   display: flex;
@@ -621,9 +635,13 @@ export default {
 } */
 .skeleton {
   position: fixed;
-  top: calc(61px + 20px);
+  top: calc(var(--head-height) + 20px);
   left: calc(var(--side-width) + 20px);
   width: calc(100vw - var(--side-width) - 40px);
+}
+.skeleton-collapsed{
+  left: calc(var(--side-collapse-width) + 20px);
+  width: calc(100vw - var(--side-collapse-width) - 40px);
 }
 .pages {
   display: flex;
