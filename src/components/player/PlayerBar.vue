@@ -2,11 +2,11 @@
   <div :class="{ 'player-bar': true, 'player-bar-maximized': expandMode }">
     <transition name="el-zoom-in-bottom">
       <div
-        class="expanded-mode"
+        :class="{'expanded-mode':true,'expanded-mode-collapsed':isCollapse}"
         v-if="expandMode && (player.playing || playerLive.playing)"
       >
-        <div class="video-box-template"></div>
-        <div class="main-content fix-scrollbar">
+        <div :class="{'video-box-template':true,'video-box-template-collapsed':isCollapse}"></div>
+        <div :class="{'main-content':true,'fix-scrollbar':true,'main-content-collapsed':isCollapse}">
           <div class="video-info" v-if="type == 'video'">
             <div class="title-box">
               <div class="title">{{ player.info.title }}</div>
@@ -18,7 +18,7 @@
             <div class="info-header-bar"><span>视频列表</span></div>
             <div class="pages">
               <div
-                class="page"
+                :class="{'page':true,'page-playing':player.page==item.page}"
                 v-for="(item, index) in player.info.pages"
                 :key="index"
                 @click="play(item.cid, item.page)"
@@ -60,7 +60,7 @@
       <div class="left">
         <div class="playing-info" v-if="player.playing">
           <div class="sub-title">
-            {{ player.page }} -
+            <span class="page-number">{{ player.page }}</span>
             {{ player.info.pages[Number(player.page) - 1].part }}
           </div>
           <div class="title">
@@ -110,7 +110,7 @@
       </div>
     </div>
     <div
-      :class="{ 'video-box': true, 'video-box-maximized': expandMode }"
+      :class="{ 'video-box': true, 'video-box-maximized': expandMode, 'video-box-maximized-collapsed':expandMode&&isCollapse }"
       v-show="player.playing || playerLive.playing"
     >
       <!-- <video ref="mainVideo" controls autoplay>
@@ -184,7 +184,10 @@ export default {
     },
     settings: function () {
       return this.$store.getters.getSettings;
-    },
+    },  
+    isCollapse(){
+      return this.$store.state.isCollapse;
+    }
   },
   watch: {
     player() {
@@ -423,9 +426,18 @@ export default {
   background: #fff;
   border: 1px solid #00000020;
   transition: padding-left 0.2s ease;
+  overflow: hidden;
 }
 .bottom-bar-minimized {
   padding-left: calc((60px / 9 * 16) + 20px);
+}
+.minimized-mode .left{
+  width: calc(100% - 122px);
+}
+.minimized-mode .right{
+  width: 122px;
+  padding: 10px;
+  flex-shrink: 0;
 }
 .expanded-mode {
   width: 100%;
@@ -433,15 +445,18 @@ export default {
   background: #fff;
   display: flex;
 }
+.expanded-mode-collapsed {
+  flex-direction: column;
+}
 .expanded-mode .video-box-template {
   width: calc((100vh - 60px) / 9 * 16);
-  height: calc(100vh - 60px);
+  height: 100%;
   max-width: calc(100vw - 300px);
 }
 .expanded-mode .main-content {
   min-width: 300px;
   width: calc(100vw - ((100vh - 60px) / 9 * 16));
-  height: calc(100vh - 60px);
+  height: 100%;
   /* background: #000; */
   box-sizing: border-box;
   /* padding: 20px; */
@@ -449,6 +464,17 @@ export default {
   overflow: scroll;
   display: flex;
   flex-direction: column;
+}
+
+.expanded-mode .video-box-template-collapsed {
+  width: 100%;
+  max-width: 100%;
+  height: calc(100vw / 16 * 9);
+}
+.expanded-mode .main-content-collapsed {
+  min-width: unset;
+  width: 100%;
+  height: calc(100% - (100vw / 16 * 9));
 }
 .video-box {
   height: 60px;
@@ -465,15 +491,38 @@ export default {
   max-width: calc(100vw - 300px);
   top: 0;
 }
+.video-box-maximized-collapsed {
+  height: calc(100vw / 16 * 9);
+  width: 100vw;
+  max-width: unset;
+  top: 0;
+}
 .video-box iframe {
   width: 100%;
   height: 100%;
 }
 .playing-info .title {
   font-size: 0.9em;
+  text-overflow:ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
 }
 .playing-info .sub-title {
   font-size: 1.2em;
+  text-overflow:ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.playing-info .sub-title .page-number {
+  border-radius: 4px;
+  background: #eee;
+  padding: 3px 7px;
+  margin-right: 5px;
+  font-size: .7em;
 }
 .pages {
   display: flex;
@@ -501,6 +550,10 @@ export default {
   border: 1px solid var(--accent-color);
 }
 .pages > .page:active {
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+}
+.pages > .page-playing {
   color: var(--accent-color);
   border: 1px solid var(--accent-color);
 }
