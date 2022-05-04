@@ -105,21 +105,6 @@ export default {
     }
   },
   methods: {
-    watchWidth(){
-      if(document.body.clientWidth > 700){
-        this.$store.commit("setCollapse", false);
-      console.log(document.body.clientWidth,this.isCollapse,this.$store.state.isCollapse);
-        this.$nextTick(()=>{
-          this.$forceUpdate();
-        })
-      }else{
-        this.$store.commit("setCollapse", true);
-      console.log(document.body.clientWidth,this.isCollapse,this.$store.state.isCollapse);
-        this.$nextTick(()=>{
-          this.$forceUpdate();
-        })
-      }
-    },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },
@@ -143,10 +128,6 @@ export default {
   created() {},
   mounted() {
     this.getFolders();
-    let _this = this;
-    window.onresize=function(){  
-      _this.watchWidth();  
-    }
   },
   beforeDestroy() {},
 };

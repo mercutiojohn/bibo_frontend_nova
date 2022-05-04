@@ -49,13 +49,33 @@ export default {
         duration: 5000,
       });
     },
+    watchWidth(){
+      if(document.body.clientWidth > 700){
+        this.$store.commit("setCollapse", false);
+      console.log(document.body.clientWidth,this.isCollapse,this.$store.state.isCollapse);
+        this.$nextTick(()=>{
+          this.$forceUpdate();
+        })
+      }else{
+        this.$store.commit("setCollapse", true);
+      console.log(document.body.clientWidth,this.isCollapse,this.$store.state.isCollapse);
+        this.$nextTick(()=>{
+          this.$forceUpdate();
+        })
+      }
+    },
   },
   mounted() {
     if (this.checkLogin()) {
       this.getUserInfo();
     } else {
     }
-    console.log('env', process.env)
+    console.log('env', process.env);
+    this.watchWidth();
+    let _this = this;
+    window.onresize=function(){  
+      _this.watchWidth();  
+    }
   },
 };
 </script>
